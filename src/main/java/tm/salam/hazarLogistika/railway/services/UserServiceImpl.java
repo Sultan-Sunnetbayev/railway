@@ -3,6 +3,7 @@ package tm.salam.hazarLogistika.railway.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import tm.salam.hazarLogistika.railway.helper.FileUploadUtil;
 import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
@@ -108,10 +109,10 @@ public class UserServiceImpl implements UserService{
 
             file.delete();
 
-            return new ResponseTransfer("user successful removed",true);
+            return new ResponseTransfer("logist successful removed",true);
         }else{
 
-            return new ResponseTransfer("user dont' removed",false);
+            return new ResponseTransfer("logist dont' removed",false);
         }
     }
 
@@ -144,9 +145,77 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDTO getUserById(final int id){
+    public UserDTO getUserDTOById(final int id){
 
         User user=userRepository.findUserById(id);
+
+        if(user==null){
+
+            return null;
+        }else{
+
+            return toDTO(user);
+        }
+    }
+
+    @Override
+    public User getUserByEmail(final String email){
+
+        User user=userRepository.findUserByEmail(email);
+
+        return user;
+    }
+
+    @Override
+    @Transactional
+    public ResponseTransfer editProfile(final UserDTO userDTO, final int id, final MultipartFile image){
+
+        User user=userRepository.findUserById(id);
+
+        if(user==null){
+
+            return new ResponseTransfer("user not found",false);
+        }
+        if(userDTO.getName()!=null && !userDTO.getName().isEmpty()){
+            user.setName(userDTO.getName());
+        }
+        if(userDTO.getSurname()!=null && !userDTO.getSurname().isEmpty()){
+            user.setSurname(userDTO.getSurname());
+        }
+        if(userDTO.getEmail()!=null && !userDTO.getEmail().isEmpty()){
+            user.setEmail(userDTO.getEmail());
+        }
+        if(userDTO.getPassword()!=null && !userDTO.getPassword().isEmpty()){
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        }
+        if(image!=null && !image.isEmpty()){
+
+            String fileName=StringUtils.cleanPath(user.getImagePath());
+
+            if(fileName==null){
+                fileName="image user "+String.valueOf(user.getId());
+            }
+            try {
+
+                FileUploadUtil.saveFile(uploadDir,fileName,image);
+                user.setImagePath(uploadDir+fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if(userRepository.findUserByEmail(userDTO.getEmail())!=null){
+
+            return new ResponseTransfer("profile user successful edited ",true);
+        }else{
+
+            return new ResponseTransfer("profile user don't edited",false);
+        }
+    }
+
+    @Override
+    public UserDTO getUserDTOByEmail(final String email){
+
+        User user=userRepository.findUserByEmail(email);
 
         if(user==null){
 

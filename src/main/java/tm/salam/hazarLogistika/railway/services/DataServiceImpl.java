@@ -320,7 +320,7 @@ public class DataServiceImpl implements DataService{
 
     @Override
     public List<OutputDataDTO> getAllData(List<Integer> idExcelFiles, List<String> currentStation, List<String> setStation,
-                                          List<String> typeStation, List<String> typeVan, final Date initialDate, final Date finalDate){
+                                          List<String> typeStation, List<String> typeVan, Date initialDate, Date finalDate){
 
         if(idExcelFiles==null || idExcelFiles.isEmpty()){
 
@@ -350,7 +350,7 @@ public class DataServiceImpl implements DataService{
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
         }else{
-            typeStation=typeVan.stream()
+            typeVan=typeVan.stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
         }

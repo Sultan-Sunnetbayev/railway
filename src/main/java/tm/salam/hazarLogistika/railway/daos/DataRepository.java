@@ -18,13 +18,13 @@ public interface DataRepository extends JpaRepository<Data,Integer> {
     Data getLastDataByNumberVan(@Param("numberVan")String numberVan);
 
     @Query("SELECT d FROM Data d WHERE (d.excelFile.id in :idsExcelFile) AND (LOWER(d.currentStation) in :currentStations) AND " +
-            "(LOWER(d.setStation) in :setStations) AND (lower(d.typeVan) in :typeVans)")
+            "(LOWER(d.setStation) in :setStations) AND (LOWER(d.typeVan) in :typeVans)")
     List<Data>getAllDataByExcelFileIdsAndCurrentStationsAndSetStationsAndTypeVans(List<Integer>idsExcelFile,
                                                                                   List<String>currentStations,
                                                                                   List<String>setStations,
                                                                                   List<String>typeVans);
 
-    @Query("SELECT d FROM Data d WHERE (d.yearDateTime BETWEEN :initialDate AND :finalDate) AND " +
+    @Query("SELECT d FROM Data d WHERE (d.yearDateTime >= :initialDate AND d.yearDateTime <= :finalDate) AND " +
             "(d.excelFile.id in :idsExcelFile) AND (LOWER(d.currentStation) in :currentStations) AND " +
             "(LOWER(d.setStation) in :setStations) AND (LOWER(d.typeVan) in :typeVans)")
     List<Data>getAllDataByExcelFileIdsAndCurrentStationsAndSetStationsAndTypeVansAndBetweenDates(List<Integer>idsExcelFile,
