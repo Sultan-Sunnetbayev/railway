@@ -15,16 +15,16 @@ public interface UserService{
     ResponseTransfer addNewLogist(final UserDTO userDTO, final MultipartFile image) throws IOException;
 
     @Transactional
-    ResponseTransfer removeLogistById(int id) throws Exception;
+    ResponseTransfer removeLogistById(final int id) throws Exception;
 
     List<UserDTO> getAllUserDTO();
 
-    User getUserByEmail(String email);
+    User getUserByEmail(final String email);
 
     @Transactional
-    ResponseTransfer editProfile(UserDTO userDTO,int id, MultipartFile image) throws IOException;
+    ResponseTransfer editProfile(final UserDTO userDTO,final int id, final MultipartFile image) throws IOException;
 
-    UserDTO getUserDTOById(int id);
+    UserDTO getUserDTOById(final int id);
 
-    UserDTO getUserDTOByEmail(String email);
+    UserDTO getUserDTOByEmail(final String email);
 }

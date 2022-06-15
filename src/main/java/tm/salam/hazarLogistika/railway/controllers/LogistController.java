@@ -17,41 +17,26 @@ import tm.salam.hazarLogistika.railway.services.UserService;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/admin")
-public class AdminController {
+@RequestMapping("/api/v1/logist")
+public class LogistController {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AdminController(UserService userService, AuthenticationManager authenticationManager,
-                           JwtTokenProvider jwtTokenProvider) {
+    public LogistController(UserService userService,
+                            AuthenticationManager authenticationManager,
+                            JwtTokenProvider jwtTokenProvider) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @PostMapping(path = "/add/new/logist",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
-    public ResponseTransfer addNewLogist(final @ModelAttribute UserDTO userDTO,
-                                         final MultipartFile image) throws IOException {
-
-        return userService.addNewLogist(userDTO,image);
-    }
-
-    @DeleteMapping(path = "/remove/logist/by/id",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
-    public ResponseTransfer removeLogistById(final @RequestParam("id")int id) throws Exception {
-
-        return userService.removeLogistById(id);
-    }
-
-    @GetMapping(path = "/get/profile",produces = "application/json")
+    @GetMapping(path = "/get/profile", produces = "application/json")
     public ResponseEntity getProfile(@RequestHeader("Authorization")String token){
 
         UserDTO userDTO=userService.getUserDTOByEmail(ParseJwtToken.getEmail(token));
@@ -59,18 +44,19 @@ public class AdminController {
         if(userDTO==null){
 
             return ResponseEntity.badRequest().body("error with parsing token");
-        }
+        }else{
 
-        return ResponseEntity.ok(userDTO);
+            return ResponseEntity.ok(userDTO);
+        }
     }
 
-    @PutMapping(path = "/edit/profile",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
-    public ResponseEntity editProfile(final @ModelAttribute UserDTO userDTO,
+    @PostMapping(path = "/edit/profile",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "application/json")
+    public ResponseEntity editProfile(final @ModelAttribute UserDTO logistDTO,
                                       final @RequestParam("image") MultipartFile image,
                                       @RequestHeader("Authorization")String token){
 
-        Map<Object,Object>response=new HashMap<>();
+        Map<Object,Object> response=new HashMap<>();
         User checkUser=userService.getUserByEmail(ParseJwtToken.getEmail(token));
 
         if(checkUser==null){
@@ -79,12 +65,12 @@ public class AdminController {
         }
 
         try {
-            ResponseTransfer responseTransfer=userService.editProfile(userDTO,checkUser.getId(),image);
+            ResponseTransfer responseTransfer=userService.editProfile(logistDTO,checkUser.getId(),image);
 
             if(responseTransfer.getStatus().booleanValue()){
                 try {
 
-                    token=jwtTokenProvider.createToken(userDTO.getEmail(),checkUser.getRoles(),checkUser.getId());
+                    token=jwtTokenProvider.createToken(logistDTO.getEmail(),checkUser.getRoles(),checkUser.getId());
 
                     response.put("access_token",token);
                     response.put("user",userService.getUserDTOById(checkUser.getId()));
@@ -103,9 +89,4 @@ public class AdminController {
         }
     }
 
-    @GetMapping(path = "/get/all/user",produces = "application/json")
-    public List<UserDTO> getAllUser(){
-
-        return userService.getAllUserDTO();
-    }
 }

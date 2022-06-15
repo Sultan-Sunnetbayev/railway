@@ -17,4 +17,6 @@ public interface ExcelFileService {
     ExcelFile getExcelFileByName(String name);
     @Transactional
     ResponseTransfer saveExcelFile(ExcelFileDTO excelFileDTO);
+
+    ExcelFileDTO getExcelFileDTOById(int id);
 }

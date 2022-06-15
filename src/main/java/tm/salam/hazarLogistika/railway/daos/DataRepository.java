@@ -18,20 +18,28 @@ public interface DataRepository extends JpaRepository<Data,Integer> {
     Data getLastDataByNumberVan(@Param("numberVan")String numberVan);
 
     @Query("SELECT d FROM Data d WHERE (d.excelFile.id in :idsExcelFile) AND (LOWER(d.currentStation) in :currentStations) AND " +
-            "(LOWER(d.setStation) in :setStations) AND (LOWER(d.typeVan) in :typeVans)")
+            "(LOWER(d.setStation) in :setStations) AND (LOWER(d.typeVan) in :typeVans) AND (d.numberVan LIKE :numberVan)")
     List<Data>getAllDataByExcelFileIdsAndCurrentStationsAndSetStationsAndTypeVans(List<Integer>idsExcelFile,
                                                                                   List<String>currentStations,
                                                                                   List<String>setStations,
-                                                                                  List<String>typeVans);
+                                                                                  List<String>typeVans,
+                                                                                  @Param("numberVan") String numberVan);
 
     @Query("SELECT d FROM Data d WHERE (d.yearDateTime >= :initialDate AND d.yearDateTime <= :finalDate) AND " +
             "(d.excelFile.id in :idsExcelFile) AND (LOWER(d.currentStation) in :currentStations) AND " +
-            "(LOWER(d.setStation) in :setStations) AND (LOWER(d.typeVan) in :typeVans)")
+            "(LOWER(d.setStation) in :setStations) AND (LOWER(d.typeVan) in :typeVans) AND (d.numberVan LIKE :numberVan)")
     List<Data>getAllDataByExcelFileIdsAndCurrentStationsAndSetStationsAndTypeVansAndBetweenDates(List<Integer>idsExcelFile,
                                                                                                  List<String>currentStations,
                                                                                                  List<String>setStations,
                                                                                                  List<String>typeVans,
                                                                                                  @Param("initialDate") Date initialDate,
-                                                                                                 @Param("finalDate") Date finalDate);
+                                                                                                 @Param("finalDate") Date finalDate,
+                                                                                                 @Param("numberVan")String numberVan);
+
+    @Query("SELECT DISTINCT d.currentStation FROM Data d WHERE (d.excelFile.id in :idExcelFiles)")
+    public List<String>getCurrentStationsFromData(List<Integer>idExcelFiles);
+
+    @Query("SELECT DISTINCT d.setStation FROM Data d WHERE (d.excelFile.id in :idExcelFiles)")
+    public List<String>getSetStationsFromData(List<Integer>idExcelFiles);
 
 }

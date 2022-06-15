@@ -62,7 +62,15 @@ public class UserServiceImpl implements UserService{
         if(savedUser!=null){
 
             if(image!=null) {
-                final String fileName = "image user " + String.valueOf(savedUser.getId());
+                String extension="";
+                for(int i=image.getOriginalFilename().length()-1; i>=0;i--){
+                    extension=image.getOriginalFilename().charAt(i)+extension;
+                    if(image.getOriginalFilename().charAt(i)=='.'){
+                        break;
+                    }
+                }
+
+                final String fileName = "image user " + String.valueOf(savedUser.getId())+extension;
 
                 try {
 
@@ -103,12 +111,15 @@ public class UserServiceImpl implements UserService{
             }
             userRepository.deleteById(id);
         }
+        String imagePath=logist.getImagePath();
+
         if(userRepository.findUserById(id)==null){
 
-            File file=new File(uploadDir+"image user "+String.valueOf(id));
+            File file=new File(imagePath);
 
-            file.delete();
-
+            if(file.exists()){
+                file.delete();
+            }
             return new ResponseTransfer("logist successful removed",true);
         }else{
 
@@ -124,12 +135,12 @@ public class UserServiceImpl implements UserService{
                 .collect(Collectors.toList());
     }
 
-    private UserDTO toDTO(User user) {
+    private UserDTO toDTO(final User user) {
 
-        List<Role>roles=user.getRoles();
+        final List<Role>roles=user.getRoles();
         List<String>nameRoles=new ArrayList<>();
 
-        for(Role role:roles){
+        for(final Role role:roles){
 
             nameRoles.add(role.getName());
         }
@@ -176,25 +187,39 @@ public class UserServiceImpl implements UserService{
 
             return new ResponseTransfer("user not found",false);
         }
-        if(userDTO.getName()!=null && !userDTO.getName().isEmpty()){
-            user.setName(userDTO.getName());
-        }
-        if(userDTO.getSurname()!=null && !userDTO.getSurname().isEmpty()){
-            user.setSurname(userDTO.getSurname());
-        }
-        if(userDTO.getEmail()!=null && !userDTO.getEmail().isEmpty()){
-            user.setEmail(userDTO.getEmail());
-        }
-        if(userDTO.getPassword()!=null && !userDTO.getPassword().isEmpty()){
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        if(userDTO!=null) {
+            if (userDTO.getName() != null && !userDTO.getName().isEmpty()) {
+                user.setName(userDTO.getName());
+            }
+            if (userDTO.getSurname() != null && !userDTO.getSurname().isEmpty()) {
+                user.setSurname(userDTO.getSurname());
+            }
+            if (userDTO.getEmail() != null && !userDTO.getEmail().isEmpty()) {
+                user.setEmail(userDTO.getEmail());
+            }
+            if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            }
         }
         if(image!=null && !image.isEmpty()){
 
-            String fileName=StringUtils.cleanPath(user.getImagePath());
+            String fileName;
+            String extension="";
+            if(user.getImagePath()!=null) {
 
-            if(fileName==null){
-                fileName="image user "+String.valueOf(user.getId());
+                File file = new File(user.getImagePath());
+                if (file.exists()) {
+                    file.delete();
+                }
             }
+            for(int i=image.getOriginalFilename().length()-1; i>=0;i--){
+                extension=image.getOriginalFilename().charAt(i)+extension;
+                if(image.getOriginalFilename().charAt(i)=='.'){
+                    break;
+                }
+            }
+
+            fileName="image user "+String.valueOf(user.getId())+extension;
             try {
 
                 FileUploadUtil.saveFile(uploadDir,fileName,image);
@@ -203,7 +228,7 @@ public class UserServiceImpl implements UserService{
                 e.printStackTrace();
             }
         }
-        if(userRepository.findUserByEmail(userDTO.getEmail())!=null){
+        if(userRepository.findUserByEmail(user.getEmail())!=null){
 
             return new ResponseTransfer("profile user successful edited ",true);
         }else{

@@ -36,6 +36,7 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
         return ExcelFileDTO.builder()
                 .id(excelFile.getId())
                 .name(excelFile.getName())
+                .path(excelFile.getPath())
                 .build();
     }
 
@@ -88,6 +89,7 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
 
         ExcelFile excelFile= ExcelFile.builder()
                 .name(excelFileDTO.getName())
+                .path(excelFileDTO.getPath())
                 .build();
 
         excelFileRepository.save(excelFile);
@@ -98,6 +100,20 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
         }else{
 
             return new ResponseTransfer("name excel file don't saved",false);
+        }
+    }
+
+    @Override
+    public ExcelFileDTO getExcelFileDTOById(final int id){
+
+        ExcelFile excelFile=excelFileRepository.findExcelFileById(id);
+
+        if(excelFile==null){
+
+            return null;
+        }else{
+
+            return toDTO(excelFile);
         }
     }
 }

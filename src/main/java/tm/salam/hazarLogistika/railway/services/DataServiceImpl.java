@@ -9,11 +9,13 @@ import tm.salam.hazarLogistika.railway.helper.FileUploadUtil;
 import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
 import tm.salam.hazarLogistika.railway.models.Data;
 import tm.salam.hazarLogistika.railway.daos.DataRepository;
-import tm.salam.hazarLogistika.railway.daos.ExcelFileRepository;
 import tm.salam.hazarLogistika.railway.models.ExcelFile;
+import tm.salam.hazarLogistika.railway.models.Document;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -30,11 +32,13 @@ public class DataServiceImpl implements DataService{
     private final StatusVanService statusVanService;
     private final TypeVanService typeVanService;
     private final VanService vanService;
+    private final DocumentService documentService;
 
     @Autowired
     public DataServiceImpl(DataRepository dataRepository, ExcelReaderService excelService,
                            ExcelFileService excelFileService, StationService stationService,
-                           StatusVanService statusVanService, TypeVanService typeVanService, VanService vanService) {
+                           StatusVanService statusVanService, TypeVanService typeVanService,
+                           VanService vanService, DocumentService documentService) {
         this.dataRepository = dataRepository;
         this.excelService = excelService;
         this.excelFileService=excelFileService;
@@ -42,13 +46,24 @@ public class DataServiceImpl implements DataService{
         this.statusVanService = statusVanService;
         this.typeVanService = typeVanService;
         this.vanService = vanService;
+        this.documentService = documentService;
     }
 
     @Override
     @Transactional
-    public ResponseTransfer loadDataInExcelFile(final MultipartFile excelFile){
+    public ResponseTransfer loadDataInExcelFile(final MultipartFile excelFile) throws InterruptedException {
 
-        final String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
+        String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
+        String extension="";
+        for(int i=fileName.length()-1;i>=0;i--){
+
+            extension=fileName.charAt(i)+extension;
+            if(fileName.charAt(i)=='.'){
+                break;
+            }
+        }
+        Thread.sleep(10);
+        fileName="hazar_logistika "+new Timestamp(new Date().getTime())+extension;
         final ExcelFileDTO checkFile=excelFileService.getExcelFileDTOByName(fileName.toString());
 
         if(checkFile!=null){
@@ -56,18 +71,29 @@ public class DataServiceImpl implements DataService{
             return new ResponseTransfer("excel file already added with such name",false);
         }
         final String uploadDir="src/main/resources/excelFiles/data/";
+        final ExcelFileDTO excelFileDTO=ExcelFileDTO.builder()
+                .name(fileName)
+                .path(uploadDir)
+                .build();
+
         List<HashMap<Integer, List<Object>>>data=null;
 
 
         try {
 
             FileUploadUtil.saveFile(uploadDir,fileName,excelFile);
+            if(!excelFileService.saveExcelFile(excelFileDTO).getStatus().booleanValue()){
 
+                return new ResponseTransfer("parameter excel file don't added",false);
+            }
         } catch (IOException e) {
             e.printStackTrace();
 
             return new ResponseTransfer("error with saving excel file",false);
         }
+
+        documentService.saveDocument(fileName);
+
         try {
 
             data=excelService.read(uploadDir+fileName);
@@ -78,18 +104,12 @@ public class DataServiceImpl implements DataService{
             return new ResponseTransfer("error with reading excel file",false);
         }
 
-        Map<Integer,String>indexValues=new HashMap<>();
-        final ExcelFileDTO excelFileDTO=ExcelFileDTO.builder()
-                .name(fileName)
-                .build();
 
-        if(!excelFileService.saveExcelFile(excelFileDTO).getStatus()){
-
-            return new ResponseTransfer("error with saving name excel file",false);
-        }
         ExcelFile savedExcelFile =excelFileService.getExcelFileByName(excelFileDTO.getName());
 
         for(HashMap<Integer,List<Object>>helper:data){
+
+            Map<Integer,String>indexValues=new HashMap<>();
 
             for(Integer key:helper.keySet()){
 
@@ -320,14 +340,15 @@ public class DataServiceImpl implements DataService{
 
     @Override
     public List<OutputDataDTO> getAllData(List<Integer> idExcelFiles, List<String> currentStation, List<String> setStation,
-                                          List<String> typeStation, List<String> typeVan, Date initialDate, Date finalDate){
+                                          List<String> actAcceptense, List<String> typeVan, Date initialDate, Date finalDate,
+                                          String numberVan){
 
         if(idExcelFiles==null || idExcelFiles.isEmpty()){
 
             idExcelFiles=excelFileService.getNameAllExcelFiles();
         }
         if(currentStation==null || currentStation.isEmpty()){
-            currentStation=stationService.getFullNameAllStations().stream()
+            currentStation=dataRepository.getCurrentStationsFromData(idExcelFiles).stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
         }else{
@@ -337,7 +358,7 @@ public class DataServiceImpl implements DataService{
                     .collect(Collectors.toList());
         }
         if(setStation==null || setStation.isEmpty()){
-            setStation=stationService.getFullNameAllStations().stream()
+            setStation=dataRepository.getSetStationsFromData(idExcelFiles).stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
         }else{
@@ -356,12 +377,17 @@ public class DataServiceImpl implements DataService{
         }
         List<Data>data=null;
 
+        if(numberVan==null){
+            numberVan="";
+        }
+        numberVan='%'+numberVan+'%';
         if(initialDate == null && finalDate == null){
 
             data=dataRepository.getAllDataByExcelFileIdsAndCurrentStationsAndSetStationsAndTypeVans(idExcelFiles,
                                                                                                     currentStation,
                                                                                                     setStation,
-                                                                                                    typeVan);
+                                                                                                    typeVan,
+                                                                                                    numberVan);
         }else{
 
             data=dataRepository.
@@ -370,7 +396,8 @@ public class DataServiceImpl implements DataService{
                                                                                                         setStation,
                                                                                                         typeVan,
                                                                                                         initialDate,
-                                                                                                        finalDate);
+                                                                                                        finalDate,
+                                                                                                        numberVan);
         }
         List<OutputDataDTO>outputDataDTOList=new ArrayList<>();
 
@@ -394,4 +421,56 @@ public class DataServiceImpl implements DataService{
 
         return outputDataDTOList;
     }
+
+    @Override
+    public List<String> getCurrentStationsFromData(List<Integer>idExcelFiles){
+
+        if(idExcelFiles==null || idExcelFiles.isEmpty()){
+
+            List<Integer>helper=new ArrayList<>();
+
+            excelFileService.getAllExcelFileDTO().forEach(excelFileDTO ->
+            {
+                helper.add(excelFileDTO.getId());
+            });
+            return dataRepository.getCurrentStationsFromData(helper);
+        }else {
+            return dataRepository.getCurrentStationsFromData(idExcelFiles);
+        }
+    }
+
+    @Override
+    public List<String>getSetStationsFromData(List<Integer>idExcelFiles){
+
+        if(idExcelFiles==null || idExcelFiles.isEmpty()){
+
+            List<Integer>helper=new ArrayList<>();
+
+            excelFileService.getAllExcelFileDTO().forEach(excelFileDTO ->
+            {
+                helper.add(excelFileDTO.getId());
+            });
+            return dataRepository.getSetStationsFromData(helper);
+        }else {
+            return dataRepository.getSetStationsFromData(idExcelFiles);
+        }
+    }
+
+    @Override
+    public File getExcelFileById(final int id){
+
+        ExcelFileDTO excelFileDTO=excelFileService.getExcelFileDTOById(id);
+        File file=new File(excelFileDTO.getPath()+excelFileDTO.getName());
+
+        if(file.exists()) {
+
+            documentService.exportDocument(excelFileDTO.getName());
+
+            return file;
+        }else{
+
+            return null;
+        }
+    }
+
 }
