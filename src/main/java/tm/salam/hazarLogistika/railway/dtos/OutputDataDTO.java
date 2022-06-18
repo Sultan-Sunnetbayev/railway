@@ -24,6 +24,7 @@ public class OutputDataDTO {
     private Date date;
     private String typeVan;
     private String setStation;
+    private Boolean act;
     private Long hourForPassedWay;
     private Long dayForRepair;
 

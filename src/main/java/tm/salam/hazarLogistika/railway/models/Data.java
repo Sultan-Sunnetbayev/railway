@@ -51,6 +51,8 @@ public class Data {
     private Long dayForRepair;
     @Column(name = "index_train")
     private String indexTrain;
+    @Column(name = "act")
+    private Boolean act;
     @Column(name = "created")
     @CreationTimestamp
     private Date created;

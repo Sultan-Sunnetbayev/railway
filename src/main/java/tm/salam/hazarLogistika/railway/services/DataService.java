@@ -15,7 +15,7 @@ public interface DataService {
     ResponseTransfer loadDataInExcelFile(final MultipartFile excelFile) throws InterruptedException;
 
     List<OutputDataDTO> getAllData(List<Integer> excelFile, List<String> currentStation, List<String> setStation,
-                                   List<String> typeStation, List<String> typeVan, Date initialDate, Date finalDate,
+                                   List<String> typeVan, List<Boolean>actAcceptense, Date initialDate, Date finalDate,
                                    String numberVan);
 
     List<String> getCurrentStationsFromData(List<Integer>idExcelFiles);

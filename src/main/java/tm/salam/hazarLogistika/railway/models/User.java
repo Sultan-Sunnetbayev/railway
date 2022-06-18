@@ -44,6 +44,10 @@ public class User {
     private String password;
     @Column(name = "image_path")
     private String imagePath;
+    @Column(name = "status")
+    private Boolean status;
+    @Column(name = "verification_code")
+    private String verificationCode;
     @CreationTimestamp
     @Column(name = "created")
     private Date created;

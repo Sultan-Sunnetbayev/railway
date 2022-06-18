@@ -4,10 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import tm.salam.hazarLogistika.railway.daos.DataRepository;
 import tm.salam.hazarLogistika.railway.daos.VanRepository;
+import tm.salam.hazarLogistika.railway.dtos.DataDTO;
 import tm.salam.hazarLogistika.railway.dtos.VanDTO;
 import tm.salam.hazarLogistika.railway.helper.FileUploadUtil;
 import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
+import tm.salam.hazarLogistika.railway.models.Data;
 import tm.salam.hazarLogistika.railway.models.Van;
 
 import javax.transaction.Transactional;
@@ -22,11 +25,13 @@ public class VanServiceImpl implements VanService{
 
     private final VanRepository vanRepository;
     private final ExcelReaderService excelService;
+    private final DataRepository dataRepository;
 
     @Autowired
-    public VanServiceImpl(VanRepository vanRepository, ExcelReaderService excelService) {
+    public VanServiceImpl(VanRepository vanRepository, ExcelReaderService excelService, DataRepository dataRepository) {
         this.vanRepository = vanRepository;
         this.excelService = excelService;
+        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -111,7 +116,20 @@ public class VanServiceImpl implements VanService{
                 if(vanDTO!=null && vanDTO.getCode()!=null) {
 
                     Van van = vanRepository.findVanByCode(vanDTO.getCode());
+                    List<Data>listData=dataRepository.findDataByNumberVan(vanDTO.getCode());
 
+                    for(Data temporalData:listData){
+
+                        if(vanDTO.getDateAct()!=null){
+
+                            temporalData.setAct(true);
+                            dataRepository.save(temporalData);
+                        }else{
+
+                            temporalData.setAct(false);
+                            dataRepository.save(temporalData);
+                        }
+                    }
                     if (van != null) {
 
                         van.setYearBuilding(vanDTO.getYearBuilding());

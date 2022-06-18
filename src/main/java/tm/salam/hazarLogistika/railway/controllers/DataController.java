@@ -1,7 +1,9 @@
 package tm.salam.hazarLogistika.railway.controllers;
 
+import org.apache.xpath.operations.Mult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,8 +37,8 @@ public class DataController {
         this.stationService = stationService;
     }
 
-    @PostMapping(path = "/load/data/in/excel/file",produces = "application/json")
-    public ResponseTransfer loadDataInExcelFile(final @RequestParam("excelFile")MultipartFile excelFile) throws InterruptedException {
+    @PostMapping(path = "/load/data/in/excel/file",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
+    public ResponseTransfer loadDataInExcelFile(@RequestParam(value = "excelFile")MultipartFile excelFile) throws InterruptedException {
 
         return dataService.loadDataInExcelFile(excelFile);
     }
@@ -55,7 +57,7 @@ public class DataController {
     public ResponseEntity getData(@RequestParam(value = "excelFiles", required = false) List<Integer>excelFiles,
                                       @RequestParam(value = "currentStations", required = false)List<String>currentStations,
                                       @RequestParam(value = "setStations", required = false)List<String>setStations,
-                                      @RequestParam(value = "actAcceptense", required = false)List<String>actAcceptense,
+                                      @RequestParam(value = "act", required = false)List<Boolean>actAcceptense,
                                       @RequestParam(value = "typeVans", required = false)List<String>typeVans,
                                       @RequestParam(value = "numberVan", required = false)String numberVan,
                                       @RequestParam(value = "initialDate", required = false)
@@ -70,7 +72,7 @@ public class DataController {
         }
 
         List<OutputDataDTO>filterData = dataService.getAllData(excelFiles,currentStations,setStations,
-                                                        actAcceptense,typeVans,initialDate,finalDate,numberVan);
+                                                        typeVans, actAcceptense, initialDate,finalDate,numberVan);
         Map<String,Integer>amountIdleVans=new HashMap<>();
         Map<String,Integer>amountLadenVans=new HashMap<>();
         int sumIdleVans=0;
@@ -108,10 +110,10 @@ public class DataController {
         Map<Object,Object>response=new HashMap<>();
 
         response.put("data",filterData);
-        response.put("amount idle vans",amountIdleVans);
-        response.put("amount laden vans",amountLadenVans);
-        response.put("sum idle vans",sumIdleVans);
-        response.put("sum laden vans",sumLadenVans);
+        response.put("amount_idle_vans",amountIdleVans);
+        response.put("amount_laden_vans",amountLadenVans);
+        response.put("sum_idle_vans",sumIdleVans);
+        response.put("sum_laden_vans",sumLadenVans);
 
         return ResponseEntity.ok(response);
     }

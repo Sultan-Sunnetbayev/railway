@@ -3,7 +3,6 @@ package tm.salam.hazarLogistika.railway.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import tm.salam.hazarLogistika.railway.helper.FileUploadUtil;
 import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
@@ -49,6 +48,7 @@ public class UserServiceImpl implements UserService{
         Role role=roleRepository.findRoleByName("ROLE_LOGIST");
 
         roles.add(role);
+
         User user=User.builder()
                 .name(userDTO.getName())
                 .surname(userDTO.getSurname())

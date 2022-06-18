@@ -1,0 +1,2 @@
+ALTER TABLE "data"
+    ADD COLUMN "act" BOOLEAN;

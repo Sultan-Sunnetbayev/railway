@@ -8,10 +8,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import tm.salam.hazarLogistika.railway.dtos.UserDTO;
+import tm.salam.hazarLogistika.railway.helper.ParseJwtToken;
 import tm.salam.hazarLogistika.railway.models.User;
 import tm.salam.hazarLogistika.railway.security.jwt.JwtTokenProvider;
 import tm.salam.hazarLogistika.railway.services.UserService;
@@ -22,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/login")
+@RequestMapping("/api/v1")
 public class LoginController {
 
     private final UserService userService;
@@ -37,7 +36,7 @@ public class LoginController {
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
+    @PostMapping(path = "/login", produces = "application/json")
     public ResponseEntity login(@RequestParam("email")String email,
                                 @RequestParam("password")String password) {
 
@@ -54,7 +53,7 @@ public class LoginController {
 
             Map<Object, Object> response = new HashMap<>();
 
-            response.put("user",userService.getUserDTOById(user.getId()));
+//            response.put("user",userService.getUserDTOById(user.getId()));
             response.put("access_token", token);
 
             return ResponseEntity.ok(response);
@@ -63,5 +62,19 @@ public class LoginController {
 
             throw new BadCredentialsException("Invalid email or password");
         }
+    }
+
+    @GetMapping(path = "/get/user",produces = "application/json")
+    public ResponseEntity getUserByToken(@RequestHeader("Authorization")String token){
+
+        UserDTO userDTO=userService.getUserDTOByEmail(ParseJwtToken.getEmail(token));
+
+        if(userDTO==null){
+
+            return ResponseEntity.badRequest().body("error with parsing token");
+        }
+
+        return ResponseEntity.ok(userDTO);
+
     }
 }

@@ -34,19 +34,27 @@ public class DataDTO {
     private Long hourForPassedWay;
     private Long dayForRepair;
     private String indexTrain;
+    private Boolean act;
 
     @Override
     public String toString() {
         return "DataDTO{" +
                 "id=" + id +
-                ", numberVan=" + numberVan +
+                ", numberVan='" + numberVan + '\'' +
                 ", codeOfTheProperty='" + codeOfTheProperty + '\'' +
+                ", lastStation='" + lastStation + '\'' +
                 ", currentStation='" + currentStation + '\'' +
                 ", statusVan='" + statusVan + '\'' +
-                ", date=" + date +
+                ", year=" + year +
+                ", date='" + date + '\'' +
+                ", time='" + time + '\'' +
+                ", yearDateTime=" + yearDateTime +
                 ", typeVan='" + typeVan + '\'' +
                 ", setStation='" + setStation + '\'' +
+                ", hourForPassedWay=" + hourForPassedWay +
+                ", dayForRepair=" + dayForRepair +
                 ", indexTrain='" + indexTrain + '\'' +
+                ", act=" + act +
                 '}';
     }
 }

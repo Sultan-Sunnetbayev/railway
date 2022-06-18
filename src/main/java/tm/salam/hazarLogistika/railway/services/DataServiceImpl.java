@@ -10,7 +10,6 @@ import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
 import tm.salam.hazarLogistika.railway.models.Data;
 import tm.salam.hazarLogistika.railway.daos.DataRepository;
 import tm.salam.hazarLogistika.railway.models.ExcelFile;
-import tm.salam.hazarLogistika.railway.models.Document;
 
 import javax.transaction.Transactional;
 import java.io.File;
@@ -214,6 +213,12 @@ public class DataServiceImpl implements DataService{
                         long diff=vanDTO.getDateNextRepear().getTime()-(new Date()).getTime();
                         dataDTO.setDayForRepair(TimeUnit.MILLISECONDS.toDays(diff));
                     }
+                    Boolean act=false;
+
+                    if(vanDTO!=null && vanDTO.getDateAct()!=null){
+
+                        act=true;
+                    }
                     Data saveData=Data.builder()
                             .numberVan(dataDTO.getNumberVan())
                             .codeOfTheProperty(dataDTO.getCodeOfTheProperty())
@@ -226,6 +231,7 @@ public class DataServiceImpl implements DataService{
                             .yearDateTime(dataDTO.getYearDateTime())
                             .typeVan(dataDTO.getTypeVan())
                             .setStation(dataDTO.getSetStation())
+                            .act(act)
                             .hourForPassedWay(dataDTO.getHourForPassedWay())
                             .dayForRepair(dataDTO.getDayForRepair())
                             .indexTrain(dataDTO.getIndexTrain())
@@ -340,7 +346,7 @@ public class DataServiceImpl implements DataService{
 
     @Override
     public List<OutputDataDTO> getAllData(List<Integer> idExcelFiles, List<String> currentStation, List<String> setStation,
-                                          List<String> actAcceptense, List<String> typeVan, Date initialDate, Date finalDate,
+                                          List<String> typeVan, List<Boolean>actAcceptense, Date initialDate, Date finalDate,
                                           String numberVan){
 
         if(idExcelFiles==null || idExcelFiles.isEmpty()){
@@ -348,6 +354,7 @@ public class DataServiceImpl implements DataService{
             idExcelFiles=excelFileService.getNameAllExcelFiles();
         }
         if(currentStation==null || currentStation.isEmpty()){
+
             currentStation=dataRepository.getCurrentStationsFromData(idExcelFiles).stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
@@ -358,22 +365,32 @@ public class DataServiceImpl implements DataService{
                     .collect(Collectors.toList());
         }
         if(setStation==null || setStation.isEmpty()){
+
             setStation=dataRepository.getSetStationsFromData(idExcelFiles).stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
         }else{
+
             setStation=setStation.stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
         }
         if(typeVan==null || typeVan.isEmpty()){
+
             typeVan=typeVanService.getAllFullNameTypeVan().stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
         }else{
+
             typeVan=typeVan.stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
+        }
+        if(actAcceptense==null || actAcceptense.isEmpty()){
+
+            actAcceptense=new ArrayList<>(
+                    List.of(true,false)
+            );
         }
         List<Data>data=null;
 
@@ -387,6 +404,7 @@ public class DataServiceImpl implements DataService{
                                                                                                     currentStation,
                                                                                                     setStation,
                                                                                                     typeVan,
+                                                                                                    actAcceptense,
                                                                                                     numberVan);
         }else{
 
@@ -395,6 +413,7 @@ public class DataServiceImpl implements DataService{
                                                                                                         currentStation,
                                                                                                         setStation,
                                                                                                         typeVan,
+                                                                                                        actAcceptense,
                                                                                                         initialDate,
                                                                                                         finalDate,
                                                                                                         numberVan);
@@ -402,6 +421,19 @@ public class DataServiceImpl implements DataService{
         List<OutputDataDTO>outputDataDTOList=new ArrayList<>();
 
         for(Data helper:data){
+
+            if(helper.getDayForRepair()==null){
+
+                VanDTO vanDTO=vanService.getVanDTOByCode(helper.getNumberVan());
+
+                if(vanDTO!=null && vanDTO.getDateNextRepear()!=null){
+
+                    long diff=vanDTO.getDateNextRepear().getTime()-(new Date()).getTime();
+
+                    helper.setDayForRepair(TimeUnit.MILLISECONDS.toDays(diff));
+                    dataRepository.save(helper);
+                }
+            }
 
             outputDataDTOList.add(
                     OutputDataDTO.builder()
@@ -413,6 +445,7 @@ public class DataServiceImpl implements DataService{
                             .date(helper.getYearDateTime())
                             .typeVan(helper.getTypeVan())
                             .setStation(helper.getSetStation())
+                            .act(helper.getAct())
                             .hourForPassedWay(helper.getHourForPassedWay())
                             .dayForRepair(helper.getDayForRepair())
                             .build()
@@ -450,8 +483,10 @@ public class DataServiceImpl implements DataService{
             {
                 helper.add(excelFileDTO.getId());
             });
+
             return dataRepository.getSetStationsFromData(helper);
         }else {
+
             return dataRepository.getSetStationsFromData(idExcelFiles);
         }
     }
