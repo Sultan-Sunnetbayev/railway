@@ -102,74 +102,23 @@ public class DataServiceImpl implements DataService{
 
             return new ResponseTransfer("error with reading excel file",false);
         }
-
-
         ExcelFile savedExcelFile =excelFileService.getExcelFileByName(excelFileDTO.getName());
 
         for(HashMap<Integer,List<Object>>helper:data){
 
             Map<Integer,String>indexValues=new HashMap<>();
+            int src=0;
 
             for(Integer key:helper.keySet()){
 
-                List<Object>dataList=helper.get(key);
-                DataDTO dataDTO=null;
+                src++;
+                if(src<=2){
 
-                for(int i=0;i<dataList.size();i++){
-
-                    switch (dataList.get(i).toString()){
-
-                        case "№вагона":
-                            indexValues.put(i,"numberVan");
-                            break;
-                        case "Код \n" +
-                                "собст.":
-                            indexValues.put(i,"codeOfTheProperty");
-                            break;
-                        case "Станция":
-                            indexValues.put(i,"currentStation");
-                            break;
-                        case "Код":
-                            indexValues.put(i,"statusVan");
-                            break;
-                        case "Год":
-                            indexValues.put(i,"year");
-                            break;
-                        case "Дата":
-                            indexValues.put(i,"date");
-                            break;
-                        case "Время":
-                            indexValues.put(i,"time");
-                            break;
-                        case "Состояние":
-                            indexValues.put(i,"typeVan");
-                            break;
-                        case "Станция \n" +
-                                "назн.вагона":
-                            indexValues.put(i,"setStation");
-                            break;
-                        case "Индекс поезда":
-                            indexValues.put(i,"indexTrain");
-                            break;
-                        default:
-                            if(indexValues.containsKey(i)){
-
-                                if(Objects.equals(indexValues.get(i),"numberVan")){
-                                    if(dataList.get(i)==" " || dataList.get(i)==null){
-                                        break;
-                                    }
-                                }else if(dataDTO==null || dataDTO.getNumberVan()==null){
-                                    break;
-                                }
-                                dataDTO=setValueDataDTO(indexValues.get(i),dataList.get(i),dataDTO);
-                            }else{
-                                break;
-                            }
-                    }
+                    continue;
                 }
-                if(dataDTO!=null && dataDTO.getNumberVan()!=null && dataDTO.getNumberVan()!=" "){
+                DataDTO dataDTO=toDataDTO(helper.get(key));
 
-                    Data temporal=dataRepository.getLastDataByNumberVan(dataDTO.getNumberVan());
+                if(dataDTO!=null && dataDTO.getNumberVan()!=null && dataDTO.getNumberVan()!=" "){
 
                     if((dataDTO.getYear()!=null && dataDTO.getDate()!=null) || dataDTO.getTime()!=null){
                         SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd.MM.yyyy HH-mm");
@@ -181,7 +130,6 @@ public class DataServiceImpl implements DataService{
                         dataDTO.setYear(2000+dataDTO.getYear());
                         try {
 
-                            String s=dataDTO.getDate()+"."+dataDTO.getYear().intValue()+" "+dataDTO.getTime();
                             dataDTO.setYearDateTime(simpleDateFormat.parse(dataDTO.getDate() + "." +
                                                                 dataDTO.getYear().intValue()+" " + dataDTO.getTime()));
 
@@ -191,6 +139,8 @@ public class DataServiceImpl implements DataService{
                         }
 
                     }
+                    Data temporal=dataRepository.getLastDataByNumberVan(dataDTO.getNumberVan());
+
                     if(temporal==null){
 
                         dataDTO.setLastStation(dataDTO.getCurrentStation());
@@ -245,48 +195,52 @@ public class DataServiceImpl implements DataService{
 
         return new ResponseTransfer("data successful saved",true);
     }
+    private DataDTO toDataDTO(final List<Object>data){
 
-    private DataDTO setValueDataDTO(final String variableName, final Object value, DataDTO dataDTO) {
+        if(data.get(0)==null || data.get(0)==" "){
 
-        if(dataDTO==null){
-
-            dataDTO=new DataDTO();
+            return null;
         }
-        switch (variableName){
+        DataDTO dataDTO=new DataDTO();
 
-            case "numberVan":
-                dataDTO.setNumberVan(value.toString());
-                break;
-            case "codeOfTheProperty":
-                dataDTO.setCodeOfTheProperty(value.toString());
-                break;
-            case "currentStation":
-                dataDTO.setCurrentStation(getFullNameStation(value.toString()));
-                break;
-            case "statusVan":
-                dataDTO.setStatusVan(getStatusVanFullName(value.toString()));
-                break;
-            case "year":
-                if(valueIsNumericType(value.toString())){
+        for(int i=0;i<data.size();i++){
 
-                    dataDTO.setYear(Double.parseDouble(value.toString()));
-                }
-                break;
-            case "date":
-                dataDTO.setDate(value.toString());
-                break;
-            case "time":
-                dataDTO.setTime(value.toString());
-                break;
-            case "typeVan":
-                dataDTO.setTypeVan(getFullNameTypeVan(value.toString()));
-                break;
-            case "setStation":
-                dataDTO.setSetStation(getFullNameStation(value.toString()));
-                break;
-            case "indexTrain":
-                dataDTO.setIndexTrain(value.toString());
-                break;
+            switch (i){
+
+                case 0:
+                    dataDTO.setNumberVan(data.get(i).toString());
+                    break;
+                case 1:
+                    dataDTO.setCodeOfTheProperty(data.get(i).toString());
+                    break;
+                case 2:
+                    dataDTO.setCurrentStation(getFullNameStation(data.get(i).toString()));
+                    break;
+                case 3:
+                    dataDTO.setStatusVan(getStatusVanFullName(data.get(i).toString()));
+                    break;
+                case 4:
+                    if(valueIsNumericType(data.get(i).toString())){
+
+                        dataDTO.setYear(Double.parseDouble(data.get(i).toString()));
+                    }
+                    break;
+                case 5:
+                    dataDTO.setDate(data.get(i).toString());
+                    break;
+                case 6:
+                    dataDTO.setTime(data.get(i).toString());
+                    break;
+                case 7:
+                    dataDTO.setTypeVan(getFullNameTypeVan(data.get(i).toString()));
+                    break;
+                case 8:
+                    dataDTO.setSetStation(getFullNameStation(data.get(i).toString()));
+                    break;
+                case 9:
+                    dataDTO.setIndexTrain(data.get(i).toString());
+                    break;
+            }
         }
 
         return dataDTO;
@@ -347,7 +301,7 @@ public class DataServiceImpl implements DataService{
     @Override
     public List<OutputDataDTO> getAllData(List<Integer> idExcelFiles, List<String> currentStation, List<String> setStation,
                                           List<String> typeVan, List<Boolean>actAcceptense, Date initialDate, Date finalDate,
-                                          String numberVan){
+                                          List<String> numberVan){
 
         if(idExcelFiles==null || idExcelFiles.isEmpty()){
 
@@ -394,10 +348,6 @@ public class DataServiceImpl implements DataService{
         }
         List<Data>data=null;
 
-        if(numberVan==null){
-            numberVan="";
-        }
-        numberVan='%'+numberVan+'%';
         if(initialDate == null && finalDate == null){
 
             data=dataRepository.getAllDataByExcelFileIdsAndCurrentStationsAndSetStationsAndTypeVans(idExcelFiles,

@@ -16,7 +16,7 @@ public interface DataService {
 
     List<OutputDataDTO> getAllData(List<Integer> excelFile, List<String> currentStation, List<String> setStation,
                                    List<String> typeVan, List<Boolean>actAcceptense, Date initialDate, Date finalDate,
-                                   String numberVan);
+                                   List<String> numberVan);
 
     List<String> getCurrentStationsFromData(List<Integer>idExcelFiles);
 

@@ -59,7 +59,7 @@ public class DataController {
                                       @RequestParam(value = "setStations", required = false)List<String>setStations,
                                       @RequestParam(value = "act", required = false)List<Boolean>actAcceptense,
                                       @RequestParam(value = "typeVans", required = false)List<String>typeVans,
-                                      @RequestParam(value = "numberVan", required = false)String numberVan,
+                                      @RequestParam(value = "numberVan", required = false)List<String> numberVan,
                                       @RequestParam(value = "initialDate", required = false)
                                                   @DateTimeFormat(pattern = "yyyy-MM-dd") Date initialDate,
                                       @RequestParam(value = "finalDate", required = false)
@@ -75,11 +75,15 @@ public class DataController {
                                                         typeVans, actAcceptense, initialDate,finalDate,numberVan);
         Map<String,Integer>amountIdleVans=new HashMap<>();
         Map<String,Integer>amountLadenVans=new HashMap<>();
+        List<List<Object>>filterTable=new ArrayList<>();
         int sumIdleVans=0;
         int sumLadenVans=0;
 
         for(OutputDataDTO helper:filterData){
 
+            filterTable.add(new ArrayList<>(
+                    List.of(helper.getNumberVan(),helper.getAct(),helper.getLastStation(),helper.getCurrentStation())
+            ));
             if(Objects.equals(helper.getTypeVan(),"Поруженый")){
 
                 sumIdleVans++;
@@ -114,6 +118,7 @@ public class DataController {
         response.put("amount_laden_vans",amountLadenVans);
         response.put("sum_idle_vans",sumIdleVans);
         response.put("sum_laden_vans",sumLadenVans);
+        response.put("table",filterTable);
 
         return ResponseEntity.ok(response);
     }

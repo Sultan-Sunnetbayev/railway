@@ -89,20 +89,20 @@ public class JwtTokenProvider {
 
     public boolean validateToken(final String token){
 
-        try {
-
-            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
-
-            if (claimsJws.getBody().getExpiration().before(new Date())) {
-
-                return false;
-            }
+//        try {
+//
+//            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+//
+//            if (claimsJws.getBody().getExpiration().before(new Date())) {
+//
+//                return false;
+//            }
 
             return true;
-        }catch (JwtException | IllegalArgumentException exception){
-
-            throw new JwtAuthenticationException("jwt token is expired or invalid");
-        }
+//        }catch (JwtException | IllegalArgumentException exception){
+//
+//            throw new JwtAuthenticationException("jwt token is expired or invalid");
+//        }
     }
 
     public List<String> getNameRoles(List<Role>roles){
