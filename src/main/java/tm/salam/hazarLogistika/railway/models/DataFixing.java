@@ -1,6 +1,9 @@
 package tm.salam.hazarLogistika.railway.models;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -10,34 +13,28 @@ import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 import java.util.List;
 
-@lombok.Data
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "excel_files")
-public class ExcelFile {
+@Table(name = "data_fixings")
+public class DataFixing {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "name")
-    @NotEmpty(message = "name excel file is empty")
-    @NotBlank(message = "name excel file is mandatory")
+    @NotEmpty(message = "name data fixing's is empty")
+    @NotBlank(message = "name data fixing's is mandatory")
     private String name;
-    @Column(name = "path")
-    @NotEmpty(message = "name excel file is empty")
-    @NotBlank(message = "name excel file is mandatory")
-    private String path;
+    @Column(name = "created")
     @CreationTimestamp
     private Date created;
     @Column(name = "updated")
     @UpdateTimestamp
     private Date updated;
-    @OneToMany(mappedBy = "excelFile",cascade = CascadeType.ALL)
-    private List<Data>dataList;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "data_fixing_id")
-    private DataFixing dataFixing;
+    @OneToMany(mappedBy = "dataFixing",fetch = FetchType.EAGER)
+    private List<ExcelFile> excelFiles;
 }
