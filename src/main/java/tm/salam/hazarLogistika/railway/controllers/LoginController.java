@@ -24,15 +24,21 @@ import java.util.Map;
 @RequestMapping("/api/v1")
 public class LoginController {
 
-    private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
+    private UserService userService;
+    private JwtTokenProvider jwtTokenProvider;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    public LoginController(UserService userService, JwtTokenProvider jwtTokenProvider,
-                           AuthenticationManager authenticationManager) {
+    public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+    @Autowired
+    public void setJwtTokenProvider(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
+    }
+
+    @Autowired
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 

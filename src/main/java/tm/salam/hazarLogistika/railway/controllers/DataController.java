@@ -1,6 +1,5 @@
 package tm.salam.hazarLogistika.railway.controllers;
 
-import org.apache.xpath.operations.Mult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -10,14 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 import tm.salam.hazarLogistika.railway.dtos.ExcelFileDTO;
 import tm.salam.hazarLogistika.railway.dtos.OutputDataDTO;
 import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
-import tm.salam.hazarLogistika.railway.services.DataService;
-import tm.salam.hazarLogistika.railway.services.ExcelFileService;
-import tm.salam.hazarLogistika.railway.services.StationService;
-import tm.salam.hazarLogistika.railway.services.TypeVanService;
+import tm.salam.hazarLogistika.railway.services.*;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping("/api/v1/data")
@@ -26,21 +21,22 @@ public class DataController {
     private final DataService dataService;
     private final ExcelFileService excelFileService;
     private final TypeVanService typeVanService;
-    private final StationService stationService;
+    private final DataFixingService dataFixingService;
 
     @Autowired
     public DataController(DataService dataService, ExcelFileService excelFileService,
-                          TypeVanService typeVanService, StationService stationService) {
+                          TypeVanService typeVanService, DataFixingService dataFixingService) {
         this.dataService = dataService;
         this.excelFileService = excelFileService;
         this.typeVanService = typeVanService;
-        this.stationService = stationService;
+        this.dataFixingService = dataFixingService;
     }
 
     @PostMapping(path = "/load/data/in/excel/file",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
-    public ResponseTransfer loadDataInExcelFile(@RequestParam(value = "excelFile")MultipartFile excelFile) throws InterruptedException {
+    public ResponseTransfer loadDataInExcelFile(@RequestParam("idDataFixing")Integer idDataFixing,
+                                                @RequestParam(value = "excelFile")MultipartFile excelFile) throws InterruptedException {
 
-        return dataService.loadDataInExcelFile(excelFile);
+        return dataService.loadDataInExcelFile(idDataFixing,excelFile);
     }
 
     @GetMapping(path = "/get/all/excel/file", produces = "application/json")
@@ -55,15 +51,16 @@ public class DataController {
 
     @GetMapping(path = "/get/data", produces = "application/json")
     public ResponseEntity getData(@RequestParam(value = "excelFiles", required = false) List<Integer>excelFiles,
-                                      @RequestParam(value = "currentStations", required = false)List<String>currentStations,
-                                      @RequestParam(value = "setStations", required = false)List<String>setStations,
-                                      @RequestParam(value = "act", required = false)List<Boolean>actAcceptense,
-                                      @RequestParam(value = "typeVans", required = false)List<String>typeVans,
-                                      @RequestParam(value = "numberVan", required = false)List<String> numberVan,
-                                      @RequestParam(value = "initialDate", required = false)
-                                                  @DateTimeFormat(pattern = "yyyy-MM-dd") Date initialDate,
-                                      @RequestParam(value = "finalDate", required = false)
-                                                  @DateTimeFormat(pattern = "yyyy-MM-dd") Date finalDate){
+                                  @RequestParam(value = "idDataFixing",required = false)Integer idDataFixing,
+                                  @RequestParam(value = "currentStations", required = false)List<String>currentStations,
+                                  @RequestParam(value = "setStations", required = false)List<String>setStations,
+                                  @RequestParam(value = "act", required = false)List<Boolean>actAcceptense,
+                                  @RequestParam(value = "typeVans", required = false)List<String>typeVans,
+                                  @RequestParam(value = "numberVan", required = false)List<String> numberVan,
+                                  @RequestParam(value = "initialDate", required = false)
+                                      @DateTimeFormat(pattern = "yyyy-MM-dd") Date initialDate,
+                                  @RequestParam(value = "finalDate", required = false)
+                                      @DateTimeFormat(pattern = "yyyy-MM-dd") Date finalDate){
 
         if(finalDate!=null) {
             finalDate.setHours(23);
@@ -71,7 +68,7 @@ public class DataController {
             finalDate.setSeconds(59);
         }
 
-        List<OutputDataDTO>filterData = dataService.getAllData(excelFiles,currentStations,setStations,
+        List<OutputDataDTO>filterData = dataService.getAllData(excelFiles,idDataFixing,currentStations,setStations,
                                                         typeVans, actAcceptense, initialDate,finalDate,numberVan);
         Map<String,Integer>amountIdleVans=new HashMap<>();
         Map<String,Integer>amountLadenVans=new HashMap<>();
@@ -84,7 +81,7 @@ public class DataController {
             filterTable.add(new ArrayList<>(
                     List.of(helper.getNumberVan(),helper.getAct(),helper.getLastStation(),helper.getCurrentStation())
             ));
-            if(Objects.equals(helper.getTypeVan(),"Поруженый")){
+            if(Objects.equals(helper.getTypeVan(),"Порожний")){
 
                 sumIdleVans++;
                 if(Objects.equals(helper.getCurrentStation(),helper.getSetStation())){
@@ -124,9 +121,12 @@ public class DataController {
     }
 
     @GetMapping(path = "/get/name/all/excel/files",produces = "application/json")
-    public List<ExcelFileDTO> getNameAllExcelFiles(){
+    public List<ExcelFileDTO> getNameAllExcelFiles(@RequestParam(value = "idDataFixing",required = false)Integer idDataFixing){
 
-        return excelFileService.getAllExcelFileDTO();
+        if(idDataFixing==null){
+            idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
+        }
+        return excelFileService.getAllExcelFilesByIdDataFixing(idDataFixing);
     }
 
     @GetMapping(path = "/get/all/van/types",produces = "application/json")
@@ -136,15 +136,17 @@ public class DataController {
     }
 
     @GetMapping(path ="/get/all/currentStations",produces = "application/json")
-    public List<String>getAllCurrentStations(@RequestParam(value = "idExcelFiles",required = false)List<Integer>idExcelFiles){
+    public List<String>getAllCurrentStations(@RequestParam(value = "idDataFixing",required = false)Integer idDataFixing,
+                                             @RequestParam(value = "idExcelFiles",required = false)List<Integer>idExcelFiles){
 
-        return dataService.getCurrentStationsFromData(idExcelFiles);
+        return dataService.getCurrentStationsFromData(idDataFixing, idExcelFiles);
     }
 
     @GetMapping(path = "/get/all/setStations",produces = "application/json")
-    public List<String>getAllSetStations(@RequestParam(value = "idExcelFiles",required = false)List<Integer>idExcelFiles){
+    public List<String>getAllSetStations(@RequestParam(value = "idDataFixing",required = false)Integer idDataFixing,
+                                         @RequestParam(value = "idExcelFiles",required = false)List<Integer>idExcelFiles){
 
-        return dataService.getSetStationsFromData(idExcelFiles);
+        return dataService.getSetStationsFromData(idDataFixing, idExcelFiles);
     }
 
     @GetMapping(path = "/export/excel/file/by/id",produces ="application/json")

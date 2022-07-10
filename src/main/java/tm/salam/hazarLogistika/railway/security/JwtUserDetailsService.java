@@ -13,10 +13,10 @@ import tm.salam.hazarLogistika.railway.services.UserService;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 
-    private final UserService userService;
+    private UserService userService;
 
     @Autowired
-    public JwtUserDetailsService(UserService userService) {
+    public void setUserService(UserService userService) {
         this.userService = userService;
     }
 

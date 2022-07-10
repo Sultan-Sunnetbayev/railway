@@ -10,13 +10,18 @@ import java.util.List;
 public interface ExcelFileService {
     List<ExcelFileDTO> getAllExcelFileDTO();
 
-    List<Integer> getNameAllExcelFiles();
+//    List<Integer> getNameAllExcelFiles();
 
     ExcelFileDTO getExcelFileDTOByName(String name);
 
     ExcelFile getExcelFileByName(String name);
+
     @Transactional
-    ResponseTransfer saveExcelFile(ExcelFileDTO excelFileDTO);
+    ResponseTransfer saveExcelFile(ExcelFileDTO excelFileDTO, Integer idDataFixing);
 
     ExcelFileDTO getExcelFileDTOById(int id);
+
+    List<Integer>getIdExcelFileDTOSByDataFixingId(Integer idDataFixing);
+
+    List<ExcelFileDTO>getAllExcelFilesByIdDataFixing(Integer idDataFixing);
 }

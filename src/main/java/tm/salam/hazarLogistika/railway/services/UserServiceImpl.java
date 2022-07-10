@@ -23,16 +23,23 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService{
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
+    private UserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
+    private  RoleRepository roleRepository;
     final String uploadDir = "src/main/resources/imageUsers/";
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                           RoleRepository roleRepository) {
+    public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @Autowired
+    public void setRoleRepository(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
 

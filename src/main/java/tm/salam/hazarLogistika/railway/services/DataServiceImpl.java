@@ -32,12 +32,13 @@ public class DataServiceImpl implements DataService{
     private final TypeVanService typeVanService;
     private final VanService vanService;
     private final DocumentService documentService;
+    private final DataFixingService dataFixingService;
 
     @Autowired
     public DataServiceImpl(DataRepository dataRepository, ExcelReaderService excelService,
                            ExcelFileService excelFileService, StationService stationService,
                            StatusVanService statusVanService, TypeVanService typeVanService,
-                           VanService vanService, DocumentService documentService) {
+                           VanService vanService, DocumentService documentService, DataFixingService dataFixingService) {
         this.dataRepository = dataRepository;
         this.excelService = excelService;
         this.excelFileService=excelFileService;
@@ -46,11 +47,12 @@ public class DataServiceImpl implements DataService{
         this.typeVanService = typeVanService;
         this.vanService = vanService;
         this.documentService = documentService;
+        this.dataFixingService = dataFixingService;
     }
 
     @Override
     @Transactional
-    public ResponseTransfer loadDataInExcelFile(final MultipartFile excelFile) throws InterruptedException {
+    public ResponseTransfer loadDataInExcelFile(final Integer idDataFixing,final MultipartFile excelFile) throws InterruptedException {
 
         String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
         String extension="";
@@ -61,8 +63,8 @@ public class DataServiceImpl implements DataService{
                 break;
             }
         }
-        Thread.sleep(10);
-        fileName="hazar_logistika "+new Timestamp(new Date().getTime())+extension;
+        Thread.sleep(1);
+        fileName=dataFixingService.getNameDataFixingById(idDataFixing)+" "+new Timestamp(new Date().getTime())+extension;
         final ExcelFileDTO checkFile=excelFileService.getExcelFileDTOByName(fileName.toString());
 
         if(checkFile!=null){
@@ -81,7 +83,7 @@ public class DataServiceImpl implements DataService{
         try {
 
             FileUploadUtil.saveFile(uploadDir,fileName,excelFile);
-            if(!excelFileService.saveExcelFile(excelFileDTO).getStatus().booleanValue()){
+            if(!excelFileService.saveExcelFile(excelFileDTO,idDataFixing).getStatus().booleanValue()){
 
                 return new ResponseTransfer("parameter excel file don't added",false);
             }
@@ -208,7 +210,9 @@ public class DataServiceImpl implements DataService{
             switch (i){
 
                 case 0:
-                    dataDTO.setNumberVan(data.get(i).toString());
+                    if(!isAlphabeticString(data.get(i).toString())) {
+                        dataDTO.setNumberVan(data.get(i).toString());
+                    }
                     break;
                 case 1:
                     dataDTO.setCodeOfTheProperty(data.get(i).toString());
@@ -226,10 +230,16 @@ public class DataServiceImpl implements DataService{
                     }
                     break;
                 case 5:
-                    dataDTO.setDate(data.get(i).toString());
+                    if(!isAlphabeticString(data.get(i).toString())){
+
+                        dataDTO.setDate(data.get(i).toString());
+                    }
                     break;
                 case 6:
-                    dataDTO.setTime(data.get(i).toString());
+                    if(!isAlphabeticString(data.get(i).toString())){
+
+                        dataDTO.setTime(data.get(i).toString());
+                    }
                     break;
                 case 7:
                     dataDTO.setTypeVan(getFullNameTypeVan(data.get(i).toString()));
@@ -298,14 +308,30 @@ public class DataServiceImpl implements DataService{
         }
     }
 
-    @Override
-    public List<OutputDataDTO> getAllData(List<Integer> idExcelFiles, List<String> currentStation, List<String> setStation,
-                                          List<String> typeVan, List<Boolean>actAcceptense, Date initialDate, Date finalDate,
-                                          List<String> numberVan){
+    private boolean isAlphabeticString (String str){
 
+        for(int j=0; j<str.length(); j++){
+            if(Character.isAlphabetic(str.charAt(j))){
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public List<OutputDataDTO> getAllData(List<Integer> idExcelFiles, Integer idDataFixing,List<String> currentStation,
+                                          List<String> setStation, List<String> typeVan, List<Boolean>actAcceptense,
+                                          Date initialDate, Date finalDate, List<String> numberVan){
+
+        if(idDataFixing==null){
+
+            idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
+        }
         if(idExcelFiles==null || idExcelFiles.isEmpty()){
 
-            idExcelFiles=excelFileService.getNameAllExcelFiles();
+            idExcelFiles=excelFileService.getIdExcelFileDTOSByDataFixingId(idDataFixing);
         }
         if(currentStation==null || currentStation.isEmpty()){
 
@@ -372,18 +398,18 @@ public class DataServiceImpl implements DataService{
 
         for(Data helper:data){
 
-            if(helper.getDayForRepair()==null){
-
-                VanDTO vanDTO=vanService.getVanDTOByCode(helper.getNumberVan());
-
-                if(vanDTO!=null && vanDTO.getDateNextRepear()!=null){
-
-                    long diff=vanDTO.getDateNextRepear().getTime()-(new Date()).getTime();
-
-                    helper.setDayForRepair(TimeUnit.MILLISECONDS.toDays(diff));
-                    dataRepository.save(helper);
-                }
-            }
+//            if(helper.getDayForRepair()==null){
+//
+//                VanDTO vanDTO=vanService.getVanDTOByCode(helper.getNumberVan());
+//
+//                if(vanDTO!=null && vanDTO.getDateNextRepear()!=null){
+//
+//                    long diff=vanDTO.getDateNextRepear().getTime()-(new Date()).getTime();
+//
+//                    helper.setDayForRepair(TimeUnit.MILLISECONDS.toDays(diff));
+//                    dataRepository.save(helper);
+//                }
+//            }
 
             outputDataDTOList.add(
                     OutputDataDTO.builder()
@@ -406,13 +432,16 @@ public class DataServiceImpl implements DataService{
     }
 
     @Override
-    public List<String> getCurrentStationsFromData(List<Integer>idExcelFiles){
+    public List<String> getCurrentStationsFromData(Integer idDataFixing, List<Integer>idExcelFiles){
 
+        if(idDataFixing==null){
+            idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
+        }
         if(idExcelFiles==null || idExcelFiles.isEmpty()){
 
             List<Integer>helper=new ArrayList<>();
 
-            excelFileService.getAllExcelFileDTO().forEach(excelFileDTO ->
+            excelFileService.getAllExcelFilesByIdDataFixing(idDataFixing).forEach(excelFileDTO ->
             {
                 helper.add(excelFileDTO.getId());
             });
@@ -423,13 +452,16 @@ public class DataServiceImpl implements DataService{
     }
 
     @Override
-    public List<String>getSetStationsFromData(List<Integer>idExcelFiles){
+    public List<String>getSetStationsFromData(Integer idDataFixing, List<Integer>idExcelFiles){
 
+        if(idDataFixing==null){
+            idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
+        }
         if(idExcelFiles==null || idExcelFiles.isEmpty()){
 
             List<Integer>helper=new ArrayList<>();
 
-            excelFileService.getAllExcelFileDTO().forEach(excelFileDTO ->
+            excelFileService.getAllExcelFilesByIdDataFixing(idDataFixing).forEach(excelFileDTO ->
             {
                 helper.add(excelFileDTO.getId());
             });

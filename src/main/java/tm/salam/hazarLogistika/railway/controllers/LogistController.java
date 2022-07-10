@@ -23,16 +23,16 @@ import java.util.Map;
 @RequestMapping("/api/v1/logist")
 public class LogistController {
 
-    private final UserService userService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
+    private UserService userService;
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public LogistController(UserService userService,
-                            AuthenticationManager authenticationManager,
-                            JwtTokenProvider jwtTokenProvider) {
+    public void setUserService(UserService userService) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
+    }
+
+    @Autowired
+    public void setJwtTokenProvider(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 

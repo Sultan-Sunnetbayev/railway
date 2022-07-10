@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,52 +69,17 @@ public class VanServiceImpl implements VanService{
 
         for(HashMap<Integer,List<Object>> helper:data){
 
+            int src=0;
             for(Integer key:helper.keySet()){
 
-                List<Object>dataList=helper.get(key);
-                VanDTO vanDTO=null;
+                if(src==0){
 
-                for(int i=0;i<dataList.size();i++){
-
-                    switch (dataList.get(i).toString()){
-
-                        case "№ вагона":
-                            indexValues.put(i,"code");
-                            break;
-                        case "Год постр":
-                            indexValues.put(i,"yearBuilding");
-                            break;
-                        case "Срок службы":
-                            indexValues.put(i,"periodDuty");
-                            break;
-                        case "Конец срока службы":
-                            indexValues.put(i,"endOfTheDuty");
-                            break;
-                        case "Ремонт":
-                            indexValues.put(i,"dateRepear");
-                            break;
-                        case "След ремонт":
-                            indexValues.put(i,"dateNextRepear");
-                            break;
-                        case "Дата подписания акта приема передачи":
-                            indexValues.put(i,"dateAct");
-                            break;
-                        case "Срок аренды":
-                            indexValues.put(i,"periodLease");
-                            break;
-                        case "Примечание":
-                            indexValues.put(i,"comment");
-                            break;
-                        default:
-                            if(indexValues.containsKey(i)){
-
-                                vanDTO=setValueVanDTO(indexValues.get(i), dataList.get(i),vanDTO);
-                            }else{
-                                break;
-                            }
-                    }
+                    src++;
+                    continue;
                 }
-                if(vanDTO!=null && vanDTO.getCode()!=null) {
+                VanDTO vanDTO=toVanDTO(helper.get(key));
+
+                if(vanDTO!=null && vanDTO.getCode()!=null && vanDTO.getCode()!=" ") {
 
                     Van van = vanRepository.findVanByCode(vanDTO.getCode());
                     List<Data>listData=dataRepository.findDataByNumberVan(vanDTO.getCode());
@@ -123,12 +89,18 @@ public class VanServiceImpl implements VanService{
                         if(vanDTO.getDateAct()!=null){
 
                             temporalData.setAct(true);
-                            dataRepository.save(temporalData);
                         }else{
 
                             temporalData.setAct(false);
-                            dataRepository.save(temporalData);
                         }
+                        if(vanDTO.getDateNextRepear()!=null){
+
+                            long diff=vanDTO.getDateNextRepear().getTime()-(new Date()).getTime();
+
+                            temporalData.setDayForRepair(TimeUnit.MILLISECONDS.toDays(diff));
+                        }
+
+                        dataRepository.save(temporalData);
                     }
                     if (van != null) {
 
@@ -165,92 +137,74 @@ public class VanServiceImpl implements VanService{
         return new ResponseTransfer("vans successful loaded in excel file",true);
     }
 
-    private VanDTO setValueVanDTO(final String variableName, final Object value, VanDTO vanDTO){
+    private VanDTO toVanDTO(final List<Object> objects) {
 
-        if(vanDTO==null){
-
-            vanDTO=new VanDTO();
-        }
+        VanDTO vanDTO=new VanDTO();
         final SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd");
 
-        switch (variableName){
+        for(int i=0;i<objects.size();i++){
 
-            case "code":
-                vanDTO.setCode(value.toString());
-                break;
-            case "yearBuilding":
+            switch (i){
 
-                if(valueIsNumericType(value.toString())){
+                case 1:
+                    vanDTO.setCode(objects.get(i).toString());
+                    break;
+                case 2:
+                    if(valueIsNumericType(objects.get(i).toString())){
 
-                    vanDTO.setYearBuilding(Double.parseDouble(value.toString()));
-                }
+                        vanDTO.setYearBuilding(Double.parseDouble(objects.get(i).toString()));
+                    }
+                    break;
+                case 3:
+                    if(valueIsNumericType(objects.get(i).toString())){
 
-//                try{
-//
-//                    vanDTO.setYearBuilding(Integer.parseInt(value.toString()));
-//
-//                }catch (NumberFormatException exception){
-//                    exception.printStackTrace();
-//                }
-                break;
-            case "periodDuty":
+                        vanDTO.setPeriodDuty(Double.parseDouble(objects.get(i).toString()));
+                    }
+                    break;
+                case 4:
+                    if(valueIsNumericType(objects.get(i).toString())) {
 
-                if(valueIsNumericType(value.toString())){
+                        vanDTO.setEndOfTheDuty(Double.parseDouble(objects.get(i).toString()));
+                    }
+                    break;
+                case 5:
+                    try {
 
-                    vanDTO.setPeriodDuty(Double.parseDouble(value.toString()));
-                }
-//                try {
-//
-//                    vanDTO.setPeriodDuty(Double.parseDouble(value.toString()));
-//
-//                }catch (NumberFormatException exception){
-//
-//                    exception.printStackTrace();
-//                }
-                break;
-            case "endOfTheDuty":
-                if(valueIsNumericType(value.toString())) {
+                        vanDTO.setDateRepear(formatter.parse(objects.get(i).toString()));
 
-                    vanDTO.setEndOfTheDuty(Double.parseDouble(value.toString()));
-                }
-                break;
-            case "dateRepear":
-                try {
+                    } catch (ParseException e) {
 
-                    vanDTO.setDateRepear(formatter.parse(value.toString()));
+                        e.printStackTrace();
 
-                } catch (ParseException e) {
+                    }
+                    break;
+                case 6:
+                    try {
 
-                    e.printStackTrace();
+                        vanDTO.setDateNextRepear(formatter.parse(objects.get(i).toString()));
 
-                }
-                break;
-            case "dateNextRepear":
-                try {
+                    } catch (ParseException e) {
 
-                    vanDTO.setDateNextRepear(formatter.parse(value.toString()));
+                        e.printStackTrace();
+                    }
+                    break;
+                case 7:
+                    try {
 
-                } catch (ParseException e) {
+                        vanDTO.setDateAct(formatter.parse(objects.get(i).toString()));
 
-                    e.printStackTrace();
-                }
-                break;
-            case "dateAct":
-                try {
+                    } catch (ParseException e) {
 
-                    vanDTO.setDateAct(formatter.parse(value.toString()));
-
-                } catch (ParseException e) {
-
-                    e.printStackTrace();
-                }
-                break;
-            case "periodLease":
-                vanDTO.setPeriodLease(value.toString());
-                break;
-            case "comment":
-                vanDTO.setComment(value.toString());
-                break;
+                        e.printStackTrace();
+                    }
+                    break;
+                case 8:
+                    vanDTO.setPeriodLease(objects.get(i).toString());
+                    break;
+                case 9:
+                    vanDTO.setComment(objects.get(i).toString());
+                    break;
+            }
         }
 
         return vanDTO;

@@ -26,8 +26,8 @@ public class ExcelFile {
     @NotBlank(message = "name excel file is mandatory")
     private String name;
     @Column(name = "path")
-    @NotEmpty(message = "name excel file is empty")
-    @NotBlank(message = "name excel file is mandatory")
+    @NotEmpty(message = "path excel file is empty")
+    @NotBlank(message = "path excel file is mandatory")
     private String path;
     @CreationTimestamp
     private Date created;

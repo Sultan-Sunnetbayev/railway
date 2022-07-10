@@ -12,15 +12,15 @@ import java.util.List;
 public interface DataService {
 
     @Transactional
-    ResponseTransfer loadDataInExcelFile(final MultipartFile excelFile) throws InterruptedException;
+    ResponseTransfer loadDataInExcelFile(final Integer idDataFixing, final MultipartFile excelFile) throws InterruptedException;
 
-    List<OutputDataDTO> getAllData(List<Integer> excelFile, List<String> currentStation, List<String> setStation,
-                                   List<String> typeVan, List<Boolean>actAcceptense, Date initialDate, Date finalDate,
-                                   List<String> numberVan);
+    List<OutputDataDTO> getAllData(List<Integer> excelFile, Integer idDataFixing,List<String> currentStation,
+                                   List<String> setStation, List<String> typeVan, List<Boolean>actAcceptense,
+                                   Date initialDate, Date finalDate, List<String> numberVan);
 
-    List<String> getCurrentStationsFromData(List<Integer>idExcelFiles);
+    List<String> getCurrentStationsFromData(Integer idDataFixing, List<Integer>idExcelFiles);
 
-    List<String>getSetStationsFromData(List<Integer>idExcelFiles);
+    List<String>getSetStationsFromData(Integer idDataFixing, List<Integer>idExcelFiles);
 
     File getExcelFileById(int id);
 }

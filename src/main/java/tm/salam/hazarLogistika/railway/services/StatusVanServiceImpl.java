@@ -111,8 +111,8 @@ public class StatusVanServiceImpl implements StatusVanService{
 
     private StatusVanDTO setValueStatusVanDTO(final String variableName, final Object value, StatusVanDTO statusVanDTO){
 
-        System.out.println(variableName+" "+value.toString()+" ");
-        System.out.println(statusVanDTO);
+//        System.out.println(variableName+" "+value.toString()+" ");
+//        System.out.println(statusVanDTO);
 
         if(statusVanDTO==null){
 

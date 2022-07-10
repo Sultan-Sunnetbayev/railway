@@ -3,7 +3,6 @@ package tm.salam.hazarLogistika.railway.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
@@ -24,15 +23,16 @@ import java.util.Map;
 @RequestMapping("/api/v1/admin")
 public class AdminController {
 
-    private final UserService userService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
+    private UserService userService;
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AdminController(UserService userService, AuthenticationManager authenticationManager,
-                           JwtTokenProvider jwtTokenProvider) {
+    public void setUserService(UserService userService) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
+    }
+
+    @Autowired
+    public void setJwtTokenProvider(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 

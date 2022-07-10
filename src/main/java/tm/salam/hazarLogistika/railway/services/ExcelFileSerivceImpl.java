@@ -1,7 +1,6 @@
 package tm.salam.hazarLogistika.railway.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.stereotype.Service;
 import tm.salam.hazarLogistika.railway.daos.ExcelFileRepository;
 import tm.salam.hazarLogistika.railway.dtos.ExcelFileDTO;
@@ -17,10 +16,12 @@ import java.util.stream.Collectors;
 public class ExcelFileSerivceImpl implements ExcelFileService{
 
     private final ExcelFileRepository excelFileRepository;
+    private final DataFixingService dataFixingService;
 
     @Autowired
-    public ExcelFileSerivceImpl(ExcelFileRepository excelFileRepository) {
+    public ExcelFileSerivceImpl(ExcelFileRepository excelFileRepository, DataFixingService dataFixingService) {
         this.excelFileRepository = excelFileRepository;
+        this.dataFixingService = dataFixingService;
     }
 
     @Override
@@ -40,19 +41,19 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
                 .build();
     }
 
-    @Override
-    public List<Integer> getNameAllExcelFiles(){
-
-        List<ExcelFile>excelFiles=excelFileRepository.findAll();
-        List<Integer>nameExcelFiles=new ArrayList<>();
-
-        for(ExcelFile excelFile:excelFiles){
-
-            nameExcelFiles.add(excelFile.getId());
-        }
-
-        return nameExcelFiles;
-    }
+//    @Override
+//    public List<Integer> getNameAllExcelFiles(){
+//
+//        List<ExcelFile>excelFiles=excelFileRepository.findAll();
+//        List<Integer>nameExcelFiles=new ArrayList<>();
+//
+//        for(ExcelFile excelFile:excelFiles){
+//
+//            nameExcelFiles.add(excelFile.getId());
+//        }
+//
+//        return nameExcelFiles;
+//    }
 
     @Override
     public ExcelFile getExcelFileByName(final String name){
@@ -85,11 +86,12 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
 
     @Override
     @Transactional
-    public ResponseTransfer saveExcelFile(final ExcelFileDTO excelFileDTO){
+    public ResponseTransfer saveExcelFile(final ExcelFileDTO excelFileDTO, final Integer idDataFixing){
 
         ExcelFile excelFile= ExcelFile.builder()
                 .name(excelFileDTO.getName())
                 .path(excelFileDTO.getPath())
+                .dataFixing(dataFixingService.getDataFixingById(idDataFixing))
                 .build();
 
         excelFileRepository.save(excelFile);
@@ -116,4 +118,28 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
             return toDTO(excelFile);
         }
     }
+
+    @Override
+    public List<Integer>getIdExcelFileDTOSByDataFixingId(Integer idDataFixing){
+
+        List<ExcelFile>excelFiles=excelFileRepository.findExcelFilesByDataFixing_Id(idDataFixing);
+        List<Integer>idExcelFiles=new ArrayList<>();
+
+        excelFiles.forEach(excelFile -> {
+            idExcelFiles.add(excelFile.getId());
+        });
+
+        return idExcelFiles;
+    }
+
+    @Override
+    public List<ExcelFileDTO>getAllExcelFilesByIdDataFixing(Integer idDataFixing){
+
+        List<ExcelFile>excelFiles=excelFileRepository.findExcelFilesByDataFixing_Id(idDataFixing);
+
+        return excelFiles.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }
