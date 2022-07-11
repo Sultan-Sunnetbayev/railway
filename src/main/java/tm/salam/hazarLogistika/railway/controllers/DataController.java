@@ -49,7 +49,7 @@ public class DataController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/get/data", produces = "application/json")
+    @PostMapping(path = "/get/data", produces = "application/json")
     public ResponseEntity getData(@RequestParam(value = "excelFiles", required = false) List<Integer>excelFiles,
                                   @RequestParam(value = "idDataFixing",required = false)Integer idDataFixing,
                                   @RequestParam(value = "currentStations", required = false)List<String>currentStations,
@@ -120,9 +120,10 @@ public class DataController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(path = "/get/name/all/excel/files",produces = "application/json")
-    public List<ExcelFileDTO> getNameAllExcelFiles(@RequestParam(value = "idDataFixing",required = false)Integer idDataFixing){
+    @PostMapping(path = "/get/name/all/excel/files",produces = "application/json")
+    public List<ExcelFileDTO> getNameAllExcelFiles(@RequestParam(value = "idDataFixing")Integer idDataFixing){
 
+        System.out.println(idDataFixing);
         if(idDataFixing==null){
             idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
         }
