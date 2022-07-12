@@ -321,114 +321,50 @@ public class DataServiceImpl implements DataService{
     }
 
     @Override
-    public List<OutputDataDTO> getAllData(List<Integer> idExcelFiles, Integer idDataFixing,List<String> currentStation,
-                                          List<String> setStation, List<String> typeVan, List<Boolean>actAcceptense,
-                                          Date initialDate, Date finalDate, List<String> numberVan){
+    public Map<String,List<OutputDataDTO>> getAllData(Integer idDataFixing, Date initialDate, Date finalDate){
+
+        List<Integer>idExcelFiles;
+        Map<String,List<OutputDataDTO>>response=new HashMap<>();
 
         if(idDataFixing==null){
 
             idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
         }
-        if(idExcelFiles==null || idExcelFiles.isEmpty()){
+        if(initialDate==null && finalDate==null){
 
             idExcelFiles=excelFileService.getIdExcelFileDTOSByDataFixingId(idDataFixing);
-        }
-        if(currentStation==null || currentStation.isEmpty()){
-
-            currentStation=dataRepository.getCurrentStationsFromData(idExcelFiles).stream()
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
         }else{
 
-            currentStation=currentStation.stream()
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
+            idExcelFiles=excelFileService.getIdExcelFilesByIdDataFixingAndBetweenDate(idDataFixing,initialDate,finalDate);
         }
-        if(setStation==null || setStation.isEmpty()){
+        for(Integer id:idExcelFiles) {
 
-            setStation=dataRepository.getSetStationsFromData(idExcelFiles).stream()
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
-        }else{
+            List<Data> data = dataRepository.findDataByExcelFile_Id(id);
+            List<OutputDataDTO> outputDataDTOList = new ArrayList<>();
 
-            setStation=setStation.stream()
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
-        }
-        if(typeVan==null || typeVan.isEmpty()){
+            for (Data helper : data) {
 
-            typeVan=typeVanService.getAllFullNameTypeVan().stream()
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
-        }else{
+                outputDataDTOList.add(
+                        OutputDataDTO.builder()
+                                .id(helper.getId())
+                                .numberVan(helper.getNumberVan())
+                                .lastStation(helper.getLastStation())
+                                .currentStation(helper.getCurrentStation())
+                                .statusVan(helper.getStatusVan())
+                                .date(helper.getYearDateTime())
+                                .typeVan(helper.getTypeVan())
+                                .setStation(helper.getSetStation())
+                                .act(helper.getAct())
+                                .hourForPassedWay(helper.getHourForPassedWay())
+                                .dayForRepair(helper.getDayForRepair())
+                                .build()
+                );
+            }
 
-            typeVan=typeVan.stream()
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
-        }
-        if(actAcceptense==null || actAcceptense.isEmpty()){
-
-            actAcceptense=new ArrayList<>(
-                    List.of(true,false)
-            );
-        }
-        List<Data>data=null;
-
-        if(initialDate == null && finalDate == null){
-
-            data=dataRepository.getAllDataByExcelFileIdsAndCurrentStationsAndSetStationsAndTypeVans(idExcelFiles,
-                                                                                                    currentStation,
-                                                                                                    setStation,
-                                                                                                    typeVan,
-                                                                                                    actAcceptense,
-                                                                                                    numberVan);
-        }else{
-
-            data=dataRepository.
-                    getAllDataByExcelFileIdsAndCurrentStationsAndSetStationsAndTypeVansAndBetweenDates(idExcelFiles,
-                                                                                                        currentStation,
-                                                                                                        setStation,
-                                                                                                        typeVan,
-                                                                                                        actAcceptense,
-                                                                                                        initialDate,
-                                                                                                        finalDate,
-                                                                                                        numberVan);
-        }
-        List<OutputDataDTO>outputDataDTOList=new ArrayList<>();
-
-        for(Data helper:data){
-
-//            if(helper.getDayForRepair()==null){
-//
-//                VanDTO vanDTO=vanService.getVanDTOByCode(helper.getNumberVan());
-//
-//                if(vanDTO!=null && vanDTO.getDateNextRepear()!=null){
-//
-//                    long diff=vanDTO.getDateNextRepear().getTime()-(new Date()).getTime();
-//
-//                    helper.setDayForRepair(TimeUnit.MILLISECONDS.toDays(diff));
-//                    dataRepository.save(helper);
-//                }
-//            }
-
-            outputDataDTOList.add(
-                    OutputDataDTO.builder()
-                            .id(helper.getId())
-                            .numberVan(helper.getNumberVan())
-                            .lastStation(helper.getLastStation())
-                            .currentStation(helper.getCurrentStation())
-                            .statusVan(helper.getStatusVan())
-                            .date(helper.getYearDateTime())
-                            .typeVan(helper.getTypeVan())
-                            .setStation(helper.getSetStation())
-                            .act(helper.getAct())
-                            .hourForPassedWay(helper.getHourForPassedWay())
-                            .dayForRepair(helper.getDayForRepair())
-                            .build()
-            );
+            response.put(excelFileService.getNameExcelFileById(id),outputDataDTOList);
         }
 
-        return outputDataDTOList;
+        return response;
     }
 
     @Override

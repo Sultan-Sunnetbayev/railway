@@ -8,7 +8,9 @@ import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
 import tm.salam.hazarLogistika.railway.models.ExcelFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +21,8 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
     private final DataFixingService dataFixingService;
 
     @Autowired
-    public ExcelFileSerivceImpl(ExcelFileRepository excelFileRepository, DataFixingService dataFixingService) {
+    public ExcelFileSerivceImpl(ExcelFileRepository excelFileRepository,
+                                DataFixingService dataFixingService) {
         this.excelFileRepository = excelFileRepository;
         this.dataFixingService = dataFixingService;
     }
@@ -41,19 +44,6 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
                 .build();
     }
 
-//    @Override
-//    public List<Integer> getNameAllExcelFiles(){
-//
-//        List<ExcelFile>excelFiles=excelFileRepository.findAll();
-//        List<Integer>nameExcelFiles=new ArrayList<>();
-//
-//        for(ExcelFile excelFile:excelFiles){
-//
-//            nameExcelFiles.add(excelFile.getId());
-//        }
-//
-//        return nameExcelFiles;
-//    }
 
     @Override
     public ExcelFile getExcelFileByName(final String name){
@@ -142,4 +132,58 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Integer>getIdExcelFilesByIdDataFixingAndBetweenDate(final Integer idDataFixing, final Date initialDate,
+                                                                    final Date finalDate){
+
+        List<ExcelFile>excelFiles=excelFileRepository.findExcelFilesByDataFixing_IdAndCreatedBetween(idDataFixing,initialDate,
+                finalDate);
+        List<Integer>idExcelFiles=new ArrayList<>();
+
+        excelFiles.forEach(excelFile -> {
+            idExcelFiles.add(excelFile.getId());
+        });
+
+        return idExcelFiles;
+    }
+
+    @Override
+    public String getNameExcelFileById(Integer id){
+
+        ExcelFile excelFile=excelFileRepository.findExcelFileById(id);
+
+        if(excelFile!=null){
+
+            return excelFile.getName();
+        }else{
+
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseTransfer removeExcelFileById(final Integer idExcelFile){
+
+        ExcelFile excelFile=excelFileRepository.findExcelFileById(idExcelFile);
+
+        if(excelFile==null){
+
+            return new ResponseTransfer("excel file don't found with this id",false);
+        }
+        File file=new File(excelFile.getPath());
+
+        if(file.exists()){
+
+            file.delete();
+        }
+        excelFileRepository.deleteById(idExcelFile);
+        if(excelFileRepository.findExcelFileById(idExcelFile)==null){
+
+            return new ResponseTransfer("excel file successful removed",true);
+        }else{
+
+            return new ResponseTransfer("excel file don't removed",false);
+        }
+    }
 }

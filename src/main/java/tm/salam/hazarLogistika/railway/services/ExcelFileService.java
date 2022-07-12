@@ -5,12 +5,11 @@ import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
 import tm.salam.hazarLogistika.railway.models.ExcelFile;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 
 public interface ExcelFileService {
     List<ExcelFileDTO> getAllExcelFileDTO();
-
-//    List<Integer> getNameAllExcelFiles();
 
     ExcelFileDTO getExcelFileDTOByName(String name);
 
@@ -24,4 +23,12 @@ public interface ExcelFileService {
     List<Integer>getIdExcelFileDTOSByDataFixingId(Integer idDataFixing);
 
     List<ExcelFileDTO>getAllExcelFilesByIdDataFixing(Integer idDataFixing);
+
+    List<Integer>getIdExcelFilesByIdDataFixingAndBetweenDate(Integer idDataFixing, Date initialDate,
+                                                             Date finalDate);
+
+    String getNameExcelFileById(Integer id);
+
+    @Transactional
+    ResponseTransfer removeExcelFileById(Integer idExcelFile);
 }

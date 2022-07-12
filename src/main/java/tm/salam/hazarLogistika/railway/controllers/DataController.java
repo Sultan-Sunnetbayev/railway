@@ -50,8 +50,7 @@ public class DataController {
     }
 
     @PostMapping(path = "/get/data", produces = "application/json")
-    public ResponseEntity getData(@RequestParam(value = "excelFiles", required = false) List<Integer>excelFiles,
-                                  @RequestParam(value = "idDataFixing",required = false)Integer idDataFixing,
+    public ResponseEntity getData(@RequestParam(value = "idDataFixing",required = false)Integer idDataFixing,
                                   @RequestParam(value = "currentStations", required = false)List<String>currentStations,
                                   @RequestParam(value = "setStations", required = false)List<String>setStations,
                                   @RequestParam(value = "act", required = false)List<Boolean>actAcceptense,
@@ -68,62 +67,18 @@ public class DataController {
             finalDate.setSeconds(59);
         }
 
-        List<OutputDataDTO>filterData = dataService.getAllData(excelFiles,idDataFixing,currentStations,setStations,
-                                                        typeVans, actAcceptense, initialDate,finalDate,numberVan);
-        Map<String,Integer>amountIdleVans=new HashMap<>();
-        Map<String,Integer>amountLadenVans=new HashMap<>();
-        List<List<Object>>filterTable=new ArrayList<>();
-        int sumIdleVans=0;
-        int sumLadenVans=0;
-
-        for(OutputDataDTO helper:filterData){
-
-            filterTable.add(new ArrayList<>(
-                    List.of(helper.getNumberVan(),helper.getAct(),helper.getLastStation(),helper.getCurrentStation())
-            ));
-            if(Objects.equals(helper.getTypeVan(),"Порожний")){
-
-                sumIdleVans++;
-                if(Objects.equals(helper.getCurrentStation(),helper.getSetStation())){
-
-                    if(!amountIdleVans.containsKey(helper.getCurrentStation())){
-
-                        amountIdleVans.put(helper.getCurrentStation(),1);
-                    }else{
-                        amountIdleVans.put(helper.getCurrentStation(),amountIdleVans.get(helper.getCurrentStation())+1);
-                    }
-                }
-            }else if(Objects.equals(helper.getTypeVan(),"Груженный")){
-
-                sumLadenVans++;
-                if(Objects.equals(helper.getCurrentStation(),helper.getSetStation())){
-
-                    if(!amountLadenVans.containsKey(helper.getCurrentStation())){
-
-                        amountLadenVans.put(helper.getCurrentStation(),1);
-                    }else{
-                        amountLadenVans.put(helper.getCurrentStation(),amountLadenVans.get(helper.getCurrentStation())+1);
-                    }
-                }
-            }
-        }
-
-        Map<Object,Object>response=new HashMap<>();
-
-        response.put("data",filterData);
-        response.put("amount_idle_vans",amountIdleVans);
-        response.put("amount_laden_vans",amountLadenVans);
-        response.put("sum_idle_vans",sumIdleVans);
-        response.put("sum_laden_vans",sumLadenVans);
-        response.put("table",filterTable);
+        Map<String,List<OutputDataDTO>>response=dataService.getAllData(idDataFixing,initialDate,finalDate);
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping(path = "/get/name/all/excel/files",produces = "application/json")
-    public List<ExcelFileDTO> getNameAllExcelFiles(@RequestParam(value = "idDataFixing")Integer idDataFixing){
+    public List<ExcelFileDTO> getNameAllExcelFiles(@RequestParam(value = "idDataFixing")Integer idDataFixing,
+                                                   @RequestParam(value = "initialDate", required = false)
+                                                   @DateTimeFormat(pattern = "yyyy-MM-dd") Date initialDate,
+                                                   @RequestParam(value = "finalDate", required = false)
+                                                       @DateTimeFormat(pattern = "yyyy-MM-dd") Date finalDate){
 
-        System.out.println(idDataFixing);
         if(idDataFixing==null){
             idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
         }
@@ -169,4 +124,9 @@ public class DataController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping(path = "/remove/excel/file/by/id",produces = "application/json")
+    public ResponseTransfer removeExcelFileById(final @RequestParam("idExcelFile")Integer idExcelFile){
+
+        return excelFileService.removeExcelFileById(idExcelFile);
+    }
 }

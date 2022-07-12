@@ -7,16 +7,16 @@ import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface DataService {
 
     @Transactional
     ResponseTransfer loadDataInExcelFile(final Integer idDataFixing, final MultipartFile excelFile) throws InterruptedException;
 
-    List<OutputDataDTO> getAllData(List<Integer> excelFile, Integer idDataFixing,List<String> currentStation,
-                                   List<String> setStation, List<String> typeVan, List<Boolean>actAcceptense,
-                                   Date initialDate, Date finalDate, List<String> numberVan);
+    Map<String,List<OutputDataDTO>> getAllData(Integer idDataFixing, Date initialDate, Date finalDate);
 
     List<String> getCurrentStationsFromData(Integer idDataFixing, List<Integer>idExcelFiles);
 

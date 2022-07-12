@@ -49,4 +49,8 @@ public interface DataRepository extends JpaRepository<Data,Integer> {
     List<String>getSetStationsFromData(List<Integer>idExcelFiles);
 
     List<Data>findDataByNumberVan(String numberVan);
+
+    List<Data>findDataByExcelFile_Id(Integer id);
+
+    void deleteByExcelFile_Id(Integer id);
 }
