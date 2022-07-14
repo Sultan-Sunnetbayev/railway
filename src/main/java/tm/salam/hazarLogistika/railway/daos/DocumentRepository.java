@@ -12,4 +12,7 @@ import java.util.List;
 public interface DocumentRepository extends JpaRepository<Document, Integer> {
 
     List<Document>findDocumentsByUserId(Integer userId);
+    Document findDocumentById(Integer id);
+    List<Document>findDocumentsByUserIdAndCreatedBetween(Integer userId, Date initialDate, Date finalDate);
+    List<Document>findDocumentsByCreatedBetween(Date initialDate, Date finalDate);
 }

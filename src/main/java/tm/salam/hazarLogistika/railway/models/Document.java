@@ -39,6 +39,8 @@ public class Document {
     private String logistName;
     @Column(name = "logist_surname")
     private String logistSurname;
+    @Column(name = "status")
+    private boolean status;
     @Column(name = "created")
     @CreationTimestamp
     private Date created;

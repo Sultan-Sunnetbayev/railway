@@ -22,14 +22,16 @@ public class DataController {
     private final ExcelFileService excelFileService;
     private final TypeVanService typeVanService;
     private final DataFixingService dataFixingService;
+    private final DocumentService documentService;
 
     @Autowired
     public DataController(DataService dataService, ExcelFileService excelFileService,
-                          TypeVanService typeVanService, DataFixingService dataFixingService) {
+                          TypeVanService typeVanService, DataFixingService dataFixingService, DocumentService documentService) {
         this.dataService = dataService;
         this.excelFileService = excelFileService;
         this.typeVanService = typeVanService;
         this.dataFixingService = dataFixingService;
+        this.documentService = documentService;
     }
 
     @PostMapping(path = "/load/data/in/excel/file",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
@@ -125,9 +127,16 @@ public class DataController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping(path = "/remove/excel/file/by/id",produces = "application/json")
+    @PostMapping(path = "/remove/excel/file/by/id",produces = "application/json")
     public ResponseTransfer removeExcelFileById(final @RequestParam("idExcelFile")Integer idExcelFile){
 
-        return excelFileService.removeExcelFileById(idExcelFile);
+        ResponseTransfer responseTransfer=excelFileService.removeExcelFileById(idExcelFile);
+
+        if(responseTransfer.getStatus().booleanValue()){
+
+            documentService.changeStatusById(idExcelFile);
+        }
+
+        return responseTransfer;
     }
 }

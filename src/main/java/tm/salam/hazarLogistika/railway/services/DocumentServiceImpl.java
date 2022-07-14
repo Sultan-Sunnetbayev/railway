@@ -9,6 +9,7 @@ import tm.salam.hazarLogistika.railway.models.Document;
 import tm.salam.hazarLogistika.railway.models.ExcelFile;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,7 @@ public class DocumentServiceImpl implements DocumentService{
                     .userId(userId)
                     .logistName(userDTO.getName())
                     .logistSurname(userDTO.getSurname())
+                    .status(true)
                     .build();
         }else{
             document= Document.builder()
@@ -66,15 +68,27 @@ public class DocumentServiceImpl implements DocumentService{
     }
 
     @Override
-    public List<DocumentDTO> getAllDocumentDTO(final Integer userId){
+    public List<DocumentDTO> getAllDocumentDTO(final Integer userId, final Date initialDate, final Date finalDate){
 
-        if(userId==null) {
+        if(userId==null && initialDate==null && finalDate==null) {
+
             return documentRepository.findAll().stream()
                     .map(this::toDTO)
                     .collect(Collectors.toList());
         }
+        if(initialDate==null && finalDate==null && userId!=null) {
 
-        return documentRepository.findDocumentsByUserId(userId).stream()
+            return documentRepository.findDocumentsByUserId(userId).stream()
+                    .map(this::toDTO)
+                    .collect(Collectors.toList());
+        }
+        if(initialDate!=null && finalDate!=null && userId==null) {
+            return documentRepository.findDocumentsByCreatedBetween(initialDate, finalDate).stream()
+                    .map(this::toDTO)
+                    .collect(Collectors.toList());
+        }
+
+        return documentRepository.findDocumentsByUserIdAndCreatedBetween(userId, initialDate, finalDate).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -98,7 +112,20 @@ public class DocumentServiceImpl implements DocumentService{
                 .logistName(document.getLogistName())
                 .logistSurname(document.getLogistSurname())
                 .idDataFixing(idDataFixing)
+                .status(document.isStatus())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void changeStatusById(final Integer id){
+
+        Document document=documentRepository.findDocumentById(id);
+
+        if(document!=null){
+
+            document.setStatus(false);
+        }
     }
 
 }

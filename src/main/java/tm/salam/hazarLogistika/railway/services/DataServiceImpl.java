@@ -123,7 +123,7 @@ public class DataServiceImpl implements DataService{
 
                 if(dataDTO!=null && dataDTO.getNumberVan()!=null && dataDTO.getNumberVan()!=" "){
 
-                    if((dataDTO.getYear()!=null && dataDTO.getDate()!=null) || dataDTO.getTime()!=null){
+                    if(dataDTO.getYear()!=null && dataDTO.getDate()!=null && dataDTO.getTime()!=null){
                         SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd.MM.yyyy HH-mm");
 
                         if(dataDTO.getTime()==null){
@@ -203,6 +203,23 @@ public class DataServiceImpl implements DataService{
         if(data.get(0)==null || data.get(0)==" "){
 
             return null;
+        }
+        while(!data.isEmpty()){
+
+            if(valueIsNumericType(data.get(0).toString())){
+
+                Double value=Double.parseDouble(data.get(0).toString());
+
+                if(value<1000000.0){
+                    data.remove(0);
+                }else{
+
+                    break;
+                }
+            }else{
+
+                break;
+            }
         }
         DataDTO dataDTO=new DataDTO();
 

@@ -19,6 +19,11 @@ public class DocumentDTO {
     private String export;
     private String instruction;
     private String dispatch;
+    private Integer userId;
+    private String logistName;
+    private String logistSurname;
+    private Integer idDataFixing;
+    private boolean status;
     private Date created;
 
     @Override
