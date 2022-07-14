@@ -27,4 +27,6 @@ public interface UserService{
     UserDTO getUserDTOById(final int id);
 
     UserDTO getUserDTOByEmail(final String email);
+
+    List<UserDTO>getAllLogistDTO();
 }

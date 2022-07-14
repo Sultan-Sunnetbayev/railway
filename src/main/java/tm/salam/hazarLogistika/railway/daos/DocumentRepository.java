@@ -4,13 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import tm.salam.hazarLogistika.railway.models.Document;
 
+import javax.print.Doc;
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Integer> {
 
-    Document findHistoryDocumentById(int id);
-    Document findHistoryDocumentByCreated(Date created);
-    Document findHistoryDocumentByImportt(String importt);
-    Document findHistoryDocumentByExport(String export);
+    List<Document>findDocumentsByUserId(Integer userId);
 }

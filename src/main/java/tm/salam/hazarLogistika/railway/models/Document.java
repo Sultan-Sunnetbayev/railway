@@ -33,6 +33,12 @@ public class Document {
     private String instruction;
     @Column(name = "dispatch")
     private String dispatch;
+    @Column(name = "user_id")
+    private Integer userId;
+    @Column(name = "logist_name")
+    private String logistName;
+    @Column(name = "logist_surname")
+    private String logistSurname;
     @Column(name = "created")
     @CreationTimestamp
     private Date created;

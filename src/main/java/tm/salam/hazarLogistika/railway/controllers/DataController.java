@@ -34,9 +34,10 @@ public class DataController {
 
     @PostMapping(path = "/load/data/in/excel/file",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
     public ResponseTransfer loadDataInExcelFile(@RequestParam("idDataFixing")Integer idDataFixing,
-                                                @RequestParam(value = "excelFile")MultipartFile excelFile) throws InterruptedException {
+                                                @RequestParam(value = "excelFile")MultipartFile excelFile,
+                                                @RequestParam("userId")Integer userId) throws InterruptedException {
 
-        return dataService.loadDataInExcelFile(idDataFixing,excelFile);
+        return dataService.loadDataInExcelFile(idDataFixing,excelFile,userId);
     }
 
     @GetMapping(path = "/get/all/excel/file", produces = "application/json")

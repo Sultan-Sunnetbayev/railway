@@ -258,4 +258,18 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    @Override
+    public List<UserDTO>getAllLogistDTO(){
+
+        Role role=roleRepository.findRoleByName("ROLE_LOGIST");
+        List<User>users=userRepository.findUsersByRoles(role);
+        List<UserDTO>userDTOS=new ArrayList<>();
+
+        users.forEach(user -> {
+            userDTOS.add(toDTO(user));
+        });
+
+        return userDTOS;
+    }
+
 }

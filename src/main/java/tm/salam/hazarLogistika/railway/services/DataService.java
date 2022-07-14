@@ -14,7 +14,7 @@ import java.util.Map;
 public interface DataService {
 
     @Transactional
-    ResponseTransfer loadDataInExcelFile(final Integer idDataFixing, final MultipartFile excelFile) throws InterruptedException;
+    ResponseTransfer loadDataInExcelFile(final Integer idDataFixing, final MultipartFile excelFile, final Integer userId) throws InterruptedException;
 
     Map<String,List<OutputDataDTO>> getAllData(Integer idDataFixing, Date initialDate, Date finalDate);
 

@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tm.salam.hazarLogistika.railway.daos.DocumentRepository;
 import tm.salam.hazarLogistika.railway.dtos.DocumentDTO;
+import tm.salam.hazarLogistika.railway.dtos.UserDTO;
 import tm.salam.hazarLogistika.railway.models.Document;
+import tm.salam.hazarLogistika.railway.models.ExcelFile;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -14,22 +16,39 @@ import java.util.stream.Collectors;
 public class DocumentServiceImpl implements DocumentService{
 
     private final DocumentRepository documentRepository;
+    private final UserService userService;
+    private final ExcelFileService excelFileService;
     private final String importt="ИМП";
     private final String export="ЭКС";
 
     @Autowired
-    public DocumentServiceImpl(DocumentRepository documentRepository) {
+    public DocumentServiceImpl(DocumentRepository documentRepository, UserService userService, ExcelFileService excelFileService) {
         this.documentRepository = documentRepository;
+        this.userService = userService;
+        this.excelFileService = excelFileService;
     }
 
     @Override
     @Transactional
-    public void saveDocument(final String name){
+    public void saveDocument(final String name, final Integer userId){
 
-        Document document=Document.builder()
-                .name(name)
-                .importt(importt)
-                .build();
+        UserDTO userDTO=userService.getUserDTOById(userId);
+        Document document=null;
+        if(userDTO!=null) {
+            document = Document.builder()
+                    .name(name)
+                    .importt(importt)
+                    .userId(userId)
+                    .logistName(userDTO.getName())
+                    .logistSurname(userDTO.getSurname())
+                    .build();
+        }else{
+            document= Document.builder()
+                    .name(name)
+                    .importt(importt)
+                    .userId(userId)
+                    .build();
+        }
 
         documentRepository.save(document);
     }
@@ -47,15 +66,26 @@ public class DocumentServiceImpl implements DocumentService{
     }
 
     @Override
-    public List<DocumentDTO> getAllDocumentDTO(){
+    public List<DocumentDTO> getAllDocumentDTO(final Integer userId){
 
-        return documentRepository.findAll().stream()
+        if(userId==null) {
+            return documentRepository.findAll().stream()
+                    .map(this::toDTO)
+                    .collect(Collectors.toList());
+        }
+
+        return documentRepository.findDocumentsByUserId(userId).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     private DocumentDTO toDTO(Document document) {
 
+        ExcelFile excelFile=excelFileService.getExcelFileByName(document.getName());
+        Integer idDataFixing=null;
+        if(excelFile!=null){
+            idDataFixing=excelFile.getDataFixing().getId();
+        }
         return DocumentDTO.builder()
                 .id(document.getId())
                 .name(document.getName())
@@ -64,6 +94,10 @@ public class DocumentServiceImpl implements DocumentService{
                 .instruction(document.getInstruction())
                 .dispatch(document.getDispatch())
                 .created(document.getCreated())
+                .userId(document.getUserId())
+                .logistName(document.getLogistName())
+                .logistSurname(document.getLogistSurname())
+                .idDataFixing(idDataFixing)
                 .build();
     }
 

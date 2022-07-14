@@ -171,7 +171,7 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
 
             return new ResponseTransfer("excel file don't found with this id",false);
         }
-        File file=new File(excelFile.getPath());
+        File file=new File(excelFile.getPath()+"/"+excelFile.getName());
 
         if(file.exists()){
 

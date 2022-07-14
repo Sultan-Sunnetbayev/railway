@@ -52,7 +52,8 @@ public class DataServiceImpl implements DataService{
 
     @Override
     @Transactional
-    public ResponseTransfer loadDataInExcelFile(final Integer idDataFixing,final MultipartFile excelFile) throws InterruptedException {
+    public ResponseTransfer loadDataInExcelFile(final Integer idDataFixing,final MultipartFile excelFile,
+                                                final Integer userId) throws InterruptedException {
 
         String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
         String extension="";
@@ -93,7 +94,7 @@ public class DataServiceImpl implements DataService{
             return new ResponseTransfer("error with saving excel file",false);
         }
 
-        documentService.saveDocument(fileName);
+        documentService.saveDocument(fileName,userId);
 
         try {
 

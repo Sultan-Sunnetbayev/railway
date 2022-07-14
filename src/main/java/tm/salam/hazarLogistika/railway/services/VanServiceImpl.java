@@ -147,7 +147,10 @@ public class VanServiceImpl implements VanService{
             switch (i){
 
                 case 1:
-                    vanDTO.setCode(objects.get(i).toString());
+                    if(!valueIsCharacter(objects.get(i).toString())) {
+
+                        vanDTO.setCode(objects.get(i).toString());
+                    }
                     break;
                 case 2:
                     if(valueIsNumericType(objects.get(i).toString())){
@@ -208,6 +211,19 @@ public class VanServiceImpl implements VanService{
         }
 
         return vanDTO;
+    }
+
+    private boolean valueIsCharacter(String value) {
+
+        for(int j=0; j<value.length(); j++){
+            if(Character.isAlphabetic(value.charAt(j))){
+
+                return true;
+            }
+        }
+
+        return false;
+
     }
 
     private boolean valueIsNumericType(String value) {

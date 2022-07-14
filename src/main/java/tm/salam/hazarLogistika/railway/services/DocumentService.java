@@ -9,10 +9,10 @@ import java.util.List;
 public interface DocumentService {
 
     @Transactional
-    void saveDocument(String name);
+    void saveDocument(String name, Integer userId);
 
     @Transactional
     void exportDocument(String name);
 
-    List<DocumentDTO> getAllDocumentDTO();
+    List<DocumentDTO> getAllDocumentDTO(final Integer userId);
 }
