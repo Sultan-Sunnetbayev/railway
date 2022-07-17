@@ -13,8 +13,13 @@ spring:
     password: postgres.
   flyway:
     baseline-on-migrate: true
+  mvc:
+    static-path-pattern: /**
 server:
   port: 8000
   error:
     include-message: always
     include-binding-errors: always
+
+upload:
+  imagePath: src/main/resources/static/imageUsers

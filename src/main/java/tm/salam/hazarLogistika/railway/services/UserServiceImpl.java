@@ -1,6 +1,7 @@
 package tm.salam.hazarLogistika.railway.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,9 +16,11 @@ import tm.salam.hazarLogistika.railway.dtos.UserDTO;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +29,7 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private  RoleRepository roleRepository;
-    final String uploadDir = "src/main/resources/imageUsers/";
+    private final String imagePath="src/main/resources/static/imageUsers";
 
     @Autowired
     public void setUserRepository(UserRepository userRepository) {
@@ -69,6 +72,7 @@ public class UserServiceImpl implements UserService{
         if(savedUser!=null){
 
             if(image!=null) {
+
                 String extension="";
                 for(int i=image.getOriginalFilename().length()-1; i>=0;i--){
                     extension=image.getOriginalFilename().charAt(i)+extension;
@@ -77,18 +81,21 @@ public class UserServiceImpl implements UserService{
                     }
                 }
 
-                final String fileName = "image user " + String.valueOf(savedUser.getId())+extension;
+//                String fileName = "image_user_" + String.valueOf(savedUser.getId())+extension;
+
+
+                String uuid= UUID.randomUUID().toString();
+                String fileName=uuid+"_"+image.getOriginalFilename();
 
                 try {
 
-                    FileUploadUtil.saveFile(uploadDir, fileName, image);
-                    savedUser.setImagePath(uploadDir+fileName);
-
+                    FileUploadUtil.saveFile(imagePath,fileName,image);
+                    savedUser.setImagePath(imagePath+"/"+fileName);
                 } catch (IOException e) {
-                    e.printStackTrace();
 
-                    return new ResponseTransfer("logist successful added but image don't saved",true);
+                    e.printStackTrace();
                 }
+
             }
 
             return new ResponseTransfer("Logist successful added",true);
@@ -229,8 +236,8 @@ public class UserServiceImpl implements UserService{
             fileName="image user "+String.valueOf(user.getId())+extension;
             try {
 
-                FileUploadUtil.saveFile(uploadDir,fileName,image);
-                user.setImagePath(uploadDir+fileName);
+                FileUploadUtil.saveFile(imagePath,fileName,image);
+                user.setImagePath(imagePath+fileName);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -44,7 +44,7 @@ public class AdminController {
         return userService.addNewLogist(userDTO,image);
     }
 
-    @DeleteMapping(path = "/remove/logist/by/id",
+    @PostMapping(path = "/remove/logist/by/id",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
     public ResponseTransfer removeLogistById(final @RequestParam("id")int id) throws Exception {
 
