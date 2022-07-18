@@ -44,6 +44,12 @@ public class ExcelReaderServiceImpl implements ExcelReaderService {
                 // new format
                 return new XSSFWorkbook(file);
             default:
+                File excelFile=new File(filename);
+
+                if(excelFile.exists()){
+
+                    excelFile.delete();
+                }
                 throw new RuntimeException("Unknown Excel file extension: " + extension);
         }
     }

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -75,7 +76,7 @@ public class AdminController {
 
         if(checkUser==null){
 
-            return ResponseEntity.badRequest().body("error with parsing token");
+            return ResponseEntity.ok(new ResponseTransfer("logist not found with this id",false));
         }
 
         try {
@@ -84,7 +85,7 @@ public class AdminController {
             if(responseTransfer.getStatus().booleanValue()){
                 try {
 
-                    if(checkUser.getRoles().get(0).getName()=="ROLE_ADMIN") {
+                    if(Objects.equals(checkUser.getRoles().get(0).getName(),"ROLE_ADMIN")) {
 
                         token = jwtTokenProvider.createToken(userDTO.getEmail(), checkUser.getRoles(), checkUser.getId());
                         response.put("access_token", token);

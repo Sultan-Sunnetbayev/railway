@@ -99,7 +99,14 @@ public class DataServiceImpl implements DataService{
             documentService.saveDocument(fileName,userId);
 
         } catch (IOException e) {
+
             e.printStackTrace();
+            File file=new File(uploadDir+fileName);
+
+            if(file.exists()){
+
+                file.delete();
+            }
 
             return new ResponseTransfer("error with reading excel file",false);
         }
@@ -107,7 +114,6 @@ public class DataServiceImpl implements DataService{
 
         for(HashMap<Integer,List<Object>>helper:data){
 
-            Map<Integer,String>indexValues=new HashMap<>();
             int src=0;
 
             for(Integer key:helper.keySet()){
@@ -198,7 +204,7 @@ public class DataServiceImpl implements DataService{
     }
     private DataDTO toDataDTO(final List<Object>data){
 
-        if(data.get(0)==null || data.get(0)==" "){
+        if(data == null || data.isEmpty() || data.get(0)==null || data.get(0)==" "){
 
             return null;
         }
