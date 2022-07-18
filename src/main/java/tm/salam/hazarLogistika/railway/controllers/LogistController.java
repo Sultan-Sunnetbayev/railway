@@ -57,7 +57,7 @@ public class LogistController {
                                       @RequestHeader("Authorization")String token){
 
         Map<Object,Object> response=new HashMap<>();
-        User checkUser=userService.getUserByEmail(ParseJwtToken.getEmail(token));
+        User checkUser=userService.getUserById(logistDTO.getId());
 
         if(checkUser==null){
 
@@ -65,7 +65,7 @@ public class LogistController {
         }
 
         try {
-            ResponseTransfer responseTransfer=userService.editProfile(logistDTO,checkUser.getId(),image);
+            ResponseTransfer responseTransfer=userService.editProfile(logistDTO,image);
 
             if(responseTransfer.getStatus().booleanValue()){
                 try {

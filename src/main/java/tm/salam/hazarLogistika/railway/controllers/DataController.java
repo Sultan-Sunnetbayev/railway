@@ -26,7 +26,8 @@ public class DataController {
 
     @Autowired
     public DataController(DataService dataService, ExcelFileService excelFileService,
-                          TypeVanService typeVanService, DataFixingService dataFixingService, DocumentService documentService) {
+                          TypeVanService typeVanService, DataFixingService dataFixingService,
+                          DocumentService documentService) {
         this.dataService = dataService;
         this.excelFileService = excelFileService;
         this.typeVanService = typeVanService;
@@ -54,11 +55,6 @@ public class DataController {
 
     @PostMapping(path = "/get/data", produces = "application/json")
     public ResponseEntity getData(@RequestParam(value = "idDataFixing",required = false)Integer idDataFixing,
-                                  @RequestParam(value = "currentStations", required = false)List<String>currentStations,
-                                  @RequestParam(value = "setStations", required = false)List<String>setStations,
-                                  @RequestParam(value = "act", required = false)List<Boolean>actAcceptense,
-                                  @RequestParam(value = "typeVans", required = false)List<String>typeVans,
-                                  @RequestParam(value = "numberVan", required = false)List<String> numberVan,
                                   @RequestParam(value = "initialDate", required = false)
                                       @DateTimeFormat(pattern = "yyyy-MM-dd") Date initialDate,
                                   @RequestParam(value = "finalDate", required = false)

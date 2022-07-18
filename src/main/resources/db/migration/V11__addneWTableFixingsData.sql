@@ -6,6 +6,7 @@ CREATE TABLE "data_fixings"(
 );
 
 INSERT INTO "data_fixings"("name") VALUES ('hazar_logistika'),
-                                          ('paper_1'),
-                                          ('paper_2'),
-                                          ('paper_3');
+                                          ('A logist'),
+                                          ('B logist'),
+                                          ('C logist'),
+                                          ('D logist');

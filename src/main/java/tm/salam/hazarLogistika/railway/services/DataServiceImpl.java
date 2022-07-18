@@ -84,21 +84,19 @@ public class DataServiceImpl implements DataService{
         try {
 
             FileUploadUtil.saveFile(uploadDir,fileName,excelFile);
-            if(!excelFileService.saveExcelFile(excelFileDTO,idDataFixing).getStatus().booleanValue()){
 
-                return new ResponseTransfer("parameter excel file don't added",false);
-            }
         } catch (IOException e) {
             e.printStackTrace();
 
-            return new ResponseTransfer("error with saving excel file",false);
+            return new ResponseTransfer("error with loading excel file",false);
         }
-
-        documentService.saveDocument(fileName,userId);
 
         try {
 
             data=excelService.read(uploadDir+fileName);
+
+            excelFileService.saveExcelFile(excelFileDTO,idDataFixing);
+            documentService.saveDocument(fileName,userId);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -351,6 +349,7 @@ public class DataServiceImpl implements DataService{
         if(initialDate==null && finalDate==null){
 
             idExcelFiles=excelFileService.getIdExcelFileDTOSByDataFixingId(idDataFixing);
+
         }else{
 
             idExcelFiles=excelFileService.getIdExcelFilesByIdDataFixingAndBetweenDate(idDataFixing,initialDate,finalDate);

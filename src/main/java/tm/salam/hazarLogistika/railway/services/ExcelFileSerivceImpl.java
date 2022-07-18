@@ -114,11 +114,12 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
 
         List<ExcelFile>excelFiles=excelFileRepository.findExcelFilesByDataFixing_Id(idDataFixing);
         List<Integer>idExcelFiles=new ArrayList<>();
+        int src=0;
+        for(int i=excelFiles.size()-1;i>=0 && src<5;i--){
 
-        excelFiles.forEach(excelFile -> {
-            idExcelFiles.add(excelFile.getId());
-        });
-
+            idExcelFiles.add(excelFiles.get(i).getId());
+            src++;
+        }
         return idExcelFiles;
     }
 

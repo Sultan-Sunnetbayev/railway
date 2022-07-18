@@ -73,17 +73,6 @@ public class UserServiceImpl implements UserService{
 
             if(image!=null) {
 
-                String extension="";
-                for(int i=image.getOriginalFilename().length()-1; i>=0;i--){
-                    extension=image.getOriginalFilename().charAt(i)+extension;
-                    if(image.getOriginalFilename().charAt(i)=='.'){
-                        break;
-                    }
-                }
-
-//                String fileName = "image_user_" + String.valueOf(savedUser.getId())+extension;
-
-
                 String uuid= UUID.randomUUID().toString();
                 String fileName=uuid+"_"+image.getOriginalFilename();
 
@@ -132,6 +121,7 @@ public class UserServiceImpl implements UserService{
             File file=new File(imagePath);
 
             if(file.exists()){
+
                 file.delete();
             }
             return new ResponseTransfer("logist successful removed",true);
@@ -193,9 +183,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public ResponseTransfer editProfile(final UserDTO userDTO, final int id, final MultipartFile image){
+    public ResponseTransfer editProfile(final UserDTO userDTO, final MultipartFile image){
 
-        User user=userRepository.findUserById(id);
+        User user=userRepository.findUserById(userDTO.getId());
 
         if(user==null){
 
@@ -217,28 +207,25 @@ public class UserServiceImpl implements UserService{
         }
         if(image!=null && !image.isEmpty()){
 
-            String fileName;
-            String extension="";
-            if(user.getImagePath()!=null) {
+            if(user.getImagePath()!=null){
 
-                File file = new File(user.getImagePath());
-                if (file.exists()) {
+                File file=new File(user.getImagePath());
+
+                if(file.exists()){
+
                     file.delete();
                 }
             }
-            for(int i=image.getOriginalFilename().length()-1; i>=0;i--){
-                extension=image.getOriginalFilename().charAt(i)+extension;
-                if(image.getOriginalFilename().charAt(i)=='.'){
-                    break;
-                }
-            }
+            String uuid= UUID.randomUUID().toString();
+            String fileName=uuid+"_"+image.getOriginalFilename();
 
-            fileName="image user "+String.valueOf(user.getId())+extension;
             try {
 
                 FileUploadUtil.saveFile(imagePath,fileName,image);
-                user.setImagePath(imagePath+fileName);
+                user.setImagePath(imagePath+"/"+fileName);
+
             } catch (IOException e) {
+
                 e.printStackTrace();
             }
         }
@@ -277,6 +264,14 @@ public class UserServiceImpl implements UserService{
         });
 
         return userDTOS;
+    }
+
+    @Override
+    public User getUserById(final Integer id){
+
+        User user=userRepository.findUserById(id);
+
+        return user;
     }
 
 }

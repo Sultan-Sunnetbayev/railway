@@ -64,14 +64,14 @@ public class AdminController {
         return ResponseEntity.ok(userDTO);
     }
 
-    @PutMapping(path = "/edit/profile",
+    @PostMapping(path = "/edit/profile",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
     public ResponseEntity editProfile(final @ModelAttribute UserDTO userDTO,
                                       final @RequestParam("image") MultipartFile image,
                                       @RequestHeader("Authorization")String token){
 
         Map<Object,Object>response=new HashMap<>();
-        User checkUser=userService.getUserByEmail(ParseJwtToken.getEmail(token));
+        User checkUser=userService.getUserById(userDTO.getId());
 
         if(checkUser==null){
 
@@ -79,15 +79,17 @@ public class AdminController {
         }
 
         try {
-            ResponseTransfer responseTransfer=userService.editProfile(userDTO,checkUser.getId(),image);
+            ResponseTransfer responseTransfer=userService.editProfile(userDTO,image);
 
             if(responseTransfer.getStatus().booleanValue()){
                 try {
 
-                    token=jwtTokenProvider.createToken(userDTO.getEmail(),checkUser.getRoles(),checkUser.getId());
+                    if(checkUser.getRoles().get(0).getName()=="ROLE_ADMIN") {
 
-                    response.put("access_token",token);
-                    response.put("user",userService.getUserDTOById(checkUser.getId()));
+                        token = jwtTokenProvider.createToken(userDTO.getEmail(), checkUser.getRoles(), checkUser.getId());
+                        response.put("access_token", token);
+                    }
+                    response.put("status",true);
 
                     return ResponseEntity.ok(response);
                 }catch (AuthenticationException exception){

@@ -22,11 +22,13 @@ public interface UserService{
     User getUserByEmail(final String email);
 
     @Transactional
-    ResponseTransfer editProfile(final UserDTO userDTO,final int id, final MultipartFile image) throws IOException;
+    ResponseTransfer editProfile(final UserDTO userDTO, final MultipartFile image) throws IOException;
 
     UserDTO getUserDTOById(final int id);
 
     UserDTO getUserDTOByEmail(final String email);
 
     List<UserDTO>getAllLogistDTO();
+
+    User getUserById(Integer id);
 }
