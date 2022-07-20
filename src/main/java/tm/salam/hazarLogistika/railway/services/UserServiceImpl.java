@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService{
     public ResponseTransfer removeLogistById(final int id) throws Exception {
 
         User logist=userRepository.findUserById(id);
-
+        String imagePath="";
         if(logist==null){
 
             return new ResponseTransfer("logist not found with this id",false);
@@ -127,11 +127,12 @@ public class UserServiceImpl implements UserService{
                     throw new Exception("delete admin impossible");
                 }
             }
+            imagePath=logist.getImagePath();
             userRepository.deleteById(id);
         }
-        String imagePath=logist.getImagePath();
+        User check=userRepository.findUserById(id);
 
-        if(userRepository.findUserById(id)==null){
+        if(check==null){
 
             File file=new File(imagePath);
 

@@ -40,7 +40,7 @@ public class AdminController {
     @PostMapping(path = "/add/new/logist",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
     public ResponseTransfer addNewLogist(final @ModelAttribute UserDTO userDTO,
-                                         final MultipartFile image) throws IOException {
+                                         final @RequestParam(value = "image",required = false) MultipartFile image) throws IOException {
 
         return userService.addNewLogist(userDTO,image);
     }
