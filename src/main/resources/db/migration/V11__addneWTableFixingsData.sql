@@ -11,4 +11,5 @@ INSERT INTO "data_fixings"("name") VALUES ('Hazar logistika'),
                                           ('Halkara turkmen logistik'),
                                           ('Dowamly yol'),
                                           ('Turkmen gatnaw logistik'),
-                                          ('Logistona');
+                                          ('Logistona'),
+                                          ('Hazar log kryty wagon');
