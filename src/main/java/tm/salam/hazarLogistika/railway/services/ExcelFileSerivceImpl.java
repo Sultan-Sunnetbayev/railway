@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -117,7 +118,9 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
         int src=0;
         for(int i=excelFiles.size()-1;i>=0 && src<5;i--){
 
-            idExcelFiles.add(excelFiles.get(i).getId());
+            if(excelFiles.get(i).getName().length()>=11 && !Objects.equals(excelFiles.get(i).getName().substring(0,11),"Акты_Ремонт")) {
+                idExcelFiles.add(excelFiles.get(i).getId());
+            }
             src++;
         }
         return idExcelFiles;
@@ -127,7 +130,18 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
     public List<ExcelFileDTO>getAllExcelFilesByIdDataFixing(Integer idDataFixing){
 
         List<ExcelFile>excelFiles=excelFileRepository.findExcelFilesByDataFixing_Id(idDataFixing);
+        int sz=0;
+        while(excelFiles!=null && excelFiles.size()>sz){
 
+            String str=excelFiles.get(sz).getName().substring(0,11);
+
+            if(str=="Акты_Ремонт"){
+
+                excelFiles.remove(sz);
+            }else{
+                sz++;
+            }
+        }
         return excelFiles.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
@@ -142,7 +156,9 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
         List<Integer>idExcelFiles=new ArrayList<>();
 
         excelFiles.forEach(excelFile -> {
-            idExcelFiles.add(excelFile.getId());
+            if(excelFile.getName().length()>=11 && !Objects.equals(excelFile.getName().substring(0,11),"Акты_Ремонт")) {
+                idExcelFiles.add(excelFile.getId());
+            }
         });
 
         return idExcelFiles;

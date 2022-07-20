@@ -1,0 +1,1 @@
+INSERT INTO "data_fixings"("name") VALUES('Hazar log kryty wagon')
