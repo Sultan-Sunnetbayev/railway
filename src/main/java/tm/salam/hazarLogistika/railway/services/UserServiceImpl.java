@@ -132,13 +132,15 @@ public class UserServiceImpl implements UserService{
         }
         User check=userRepository.findUserById(id);
 
-        if(check==null && imagePath!=null){
+        if(check==null){
 
-            File file=new File(imagePath);
+            if(imagePath!=null) {
+                File file = new File(imagePath);
 
-            if(file.exists()){
+                if (file.exists()) {
 
-                file.delete();
+                    file.delete();
+                }
             }
             return new ResponseTransfer("logist successful removed",true);
         }else{
