@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService{
         }
         User check=userRepository.findUserById(id);
 
-        if(check==null){
+        if(check==null && imagePath!=null){
 
             File file=new File(imagePath);
 
