@@ -187,4 +187,14 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
             return new ResponseTransfer("excel file don't removed",false);
         }
     }
+
+    @Override
+    public Date getDateFirstAddedExcelFile(){
+
+        Date date=excelFileRepository.getDateFirstAddedExcelFiles(
+                dataFixingService.getIdByNameDataFixing("Hazar logistika"));
+
+        return date;
+    }
+
 }

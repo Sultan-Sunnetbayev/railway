@@ -17,6 +17,8 @@ public interface ExcelFileRepository extends JpaRepository<ExcelFile,Integer> {
     ExcelFile findExcelFileByName(String name);
     List<ExcelFile>findExcelFilesByDataFixing_IdAndCreatedBetween(Integer idDatafixing, Date initialDate, Date finalDate);
     List<ExcelFile>findExcelFilesByDataFixing_Id(Integer idDataFixing);
+    @Query("SELECT MIN(exl.created) FROM ExcelFile exl WHERE exl.dataFixing.id = :idDataFixing")
+    Date getDateFirstAddedExcelFiles(Integer idDataFixing);
 
 
 }

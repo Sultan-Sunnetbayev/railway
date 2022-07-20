@@ -68,27 +68,33 @@ public class DocumentServiceImpl implements DocumentService{
     }
 
     @Override
-    public List<DocumentDTO> getAllDocumentDTO(final Integer userId, final Date initialDate, final Date finalDate){
+    public List<DocumentDTO> getAllDocumentDTO(final Integer userId, Date initialDate, Date finalDate) {
 
-        if(userId==null && initialDate==null && finalDate==null) {
+        if (userId == null && initialDate == null && finalDate == null) {
 
             return documentRepository.findAll().stream()
                     .map(this::toDTO)
                     .collect(Collectors.toList());
         }
-        if(initialDate==null && finalDate==null && userId!=null) {
+        if(initialDate==null && finalDate==null && userId!=null){
 
             return documentRepository.findDocumentsByUserId(userId).stream()
                     .map(this::toDTO)
                     .collect(Collectors.toList());
         }
-        if(initialDate!=null && finalDate!=null && userId==null) {
-            return documentRepository.findDocumentsByCreatedBetween(initialDate, finalDate).stream()
-                    .map(this::toDTO)
-                    .collect(Collectors.toList());
-        }
+        if(initialDate==null && finalDate!=null){
 
-        return documentRepository.findDocumentsByUserIdAndCreatedBetween(userId, initialDate, finalDate).stream()
+            initialDate=documentRepository.getDateFirstAddedFile();
+        }
+        if(initialDate!=null && finalDate==null){
+
+            finalDate=new Date();
+        }
+        finalDate.setTime(23);
+        finalDate.setMinutes(59);
+        finalDate.setSeconds(59);
+
+        return documentRepository.findDocumentsByUserIdAndCreatedBetween(userId,initialDate,finalDate).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }

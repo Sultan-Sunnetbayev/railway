@@ -49,9 +49,10 @@ public class VanController {
 //    }
 
     @PostMapping(path = "/load/vans/in/excel/file",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
-    public ResponseTransfer loadVansByExcelFile(final @RequestParam("excelFile") MultipartFile excelFile){
+    public ResponseTransfer loadVansByExcelFile(final @RequestParam("excelFile") MultipartFile excelFile,
+                                                final @RequestParam(value = "userId",required = false)Integer userId) throws InterruptedException {
 
-        return vanService.loadVanByExcelFile(excelFile);
+        return vanService.loadVanByExcelFile(excelFile,userId);
     }
 
 //    @PostMapping(path = "/add/new/van",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")

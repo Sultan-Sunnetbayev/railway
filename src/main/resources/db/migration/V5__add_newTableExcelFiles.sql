@@ -12,3 +12,10 @@ ALTER TABLE "data"
         FOREIGN KEY("excel_file_id")
             REFERENCES "excel_files"("id")
                 ON UPDATE CASCADE ON DELETE CASCADE ;
+
+ALTER TABLE "vans"
+    ADD COLUMN "excel_file_id" INT NOT NULL ,
+    ADD CONSTRAINT "vans_excel_file_id_fk"
+        FOREIGN KEY("excel_file_id")
+            REFERENCES "excel_files"("id")
+                ON UPDATE CASCADE ON DELETE CASCADE ;

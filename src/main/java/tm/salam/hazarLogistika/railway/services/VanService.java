@@ -9,16 +9,7 @@ import java.util.List;
 
 public interface VanService {
     @Transactional
-    ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile);
-
-    @Transactional
-    ResponseTransfer addNewVan(final VanDTO vanDTO);
-
-    @Transactional
-    ResponseTransfer editVanById(final VanDTO vanDTO);
-
-    @Transactional
-    ResponseTransfer removeVanById(final int id);
+    ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId) throws InterruptedException;
 
     List<VanDTO> getAllVanDTOS();
 

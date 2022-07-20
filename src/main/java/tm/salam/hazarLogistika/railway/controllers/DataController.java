@@ -60,12 +60,6 @@ public class DataController {
                                   @RequestParam(value = "finalDate", required = false)
                                       @DateTimeFormat(pattern = "yyyy-MM-dd") Date finalDate){
 
-        if(finalDate!=null) {
-            finalDate.setHours(23);
-            finalDate.setMinutes(59);
-            finalDate.setSeconds(59);
-        }
-
         Map<String,List<OutputDataDTO>>response=dataService.getAllData(idDataFixing,initialDate,finalDate);
 
         return ResponseEntity.ok(response);
@@ -79,7 +73,7 @@ public class DataController {
                                                        @DateTimeFormat(pattern = "yyyy-MM-dd") Date finalDate){
 
         if(idDataFixing==null){
-            idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
+            idDataFixing=dataFixingService.getIdByNameDataFixing("Hazar logistika");
         }
         return excelFileService.getAllExcelFilesByIdDataFixing(idDataFixing);
     }

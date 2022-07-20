@@ -19,7 +19,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 public class DataServiceImpl implements DataService{
@@ -66,12 +65,6 @@ public class DataServiceImpl implements DataService{
         }
         Thread.sleep(1);
         fileName=dataFixingService.getNameDataFixingById(idDataFixing)+" "+new Timestamp(new Date().getTime())+extension;
-        final ExcelFileDTO checkFile=excelFileService.getExcelFileDTOByName(fileName.toString());
-
-        if(checkFile!=null){
-
-            return new ResponseTransfer("excel file already added with such name",false);
-        }
         final String uploadDir="src/main/resources/excelFiles/data/";
         final ExcelFileDTO excelFileDTO=ExcelFileDTO.builder()
                 .name(fileName)
@@ -94,7 +87,6 @@ public class DataServiceImpl implements DataService{
         try {
 
             data=excelService.read(uploadDir+fileName);
-
             excelFileService.saveExcelFile(excelFileDTO,idDataFixing);
             documentService.saveDocument(fileName,userId);
 
@@ -350,15 +342,25 @@ public class DataServiceImpl implements DataService{
 
         if(idDataFixing==null){
 
-            idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
+            idDataFixing=dataFixingService.getIdByNameDataFixing("Hazar logistika");
         }
         if(initialDate==null && finalDate==null){
 
             idExcelFiles=excelFileService.getIdExcelFileDTOSByDataFixingId(idDataFixing);
 
         }else{
+            if(initialDate!=null && finalDate==null){
 
-            idExcelFiles=excelFileService.getIdExcelFilesByIdDataFixingAndBetweenDate(idDataFixing,initialDate,finalDate);
+                finalDate=new Date();
+            }
+            if(initialDate==null && finalDate!=null){
+
+                initialDate=excelFileService.getDateFirstAddedExcelFile();
+            }
+                finalDate.setHours(23);
+                finalDate.setMinutes(59);
+                finalDate.setSeconds(59);
+                idExcelFiles = excelFileService.getIdExcelFilesByIdDataFixingAndBetweenDate(idDataFixing, initialDate, finalDate);
         }
         for(Integer id:idExcelFiles) {
 
@@ -394,7 +396,7 @@ public class DataServiceImpl implements DataService{
     public List<String> getCurrentStationsFromData(Integer idDataFixing, List<Integer>idExcelFiles){
 
         if(idDataFixing==null){
-            idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
+            idDataFixing=dataFixingService.getIdByNameDataFixing("Hazar logistika");
         }
         if(idExcelFiles==null || idExcelFiles.isEmpty()){
 
@@ -414,7 +416,7 @@ public class DataServiceImpl implements DataService{
     public List<String>getSetStationsFromData(Integer idDataFixing, List<Integer>idExcelFiles){
 
         if(idDataFixing==null){
-            idDataFixing=dataFixingService.getIdByNameDataFixing("hazar_logistika");
+            idDataFixing=dataFixingService.getIdByNameDataFixing("Hazar logistika");
         }
         if(idExcelFiles==null || idExcelFiles.isEmpty()){
 

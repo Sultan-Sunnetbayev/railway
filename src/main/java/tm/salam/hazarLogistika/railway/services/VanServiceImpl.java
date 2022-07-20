@@ -6,41 +6,60 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import tm.salam.hazarLogistika.railway.daos.DataRepository;
 import tm.salam.hazarLogistika.railway.daos.VanRepository;
-import tm.salam.hazarLogistika.railway.dtos.DataDTO;
+import tm.salam.hazarLogistika.railway.dtos.ExcelFileDTO;
 import tm.salam.hazarLogistika.railway.dtos.VanDTO;
 import tm.salam.hazarLogistika.railway.helper.FileUploadUtil;
 import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
-import tm.salam.hazarLogistika.railway.models.Data;
 import tm.salam.hazarLogistika.railway.models.Van;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 public class VanServiceImpl implements VanService{
 
     private final VanRepository vanRepository;
-    private final ExcelReaderService excelService;
+    private final ExcelReaderService excelReaderService;
     private final DataRepository dataRepository;
+    private final ExcelFileService excelFileService;
+    private final DocumentService documentService;
 
     @Autowired
-    public VanServiceImpl(VanRepository vanRepository, ExcelReaderService excelService, DataRepository dataRepository) {
+    public VanServiceImpl(VanRepository vanRepository, ExcelReaderService excelService,
+                          DataRepository dataRepository, ExcelFileService excelFileService,
+                          DocumentService documentService) {
         this.vanRepository = vanRepository;
-        this.excelService = excelService;
+        this.excelReaderService = excelService;
         this.dataRepository = dataRepository;
+        this.excelFileService = excelFileService;
+        this.documentService = documentService;
     }
 
     @Override
     @Transactional
-    public ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile){
+    public ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId) throws InterruptedException {
 
         final String uploadDir="src/main/resources/excelFiles/vans/";
-        final String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
+        String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
+        final Integer idDataFixing=1;
+        String extension="";
+
+        for(int i=fileName.length()-1;i>=0;i--){
+
+            extension=fileName.charAt(i)+extension;
+            if(fileName.charAt(i)=='.'){
+                break;
+            }
+        }
+        Thread.sleep(1);
+        fileName="Акты_Ремонт "+new Timestamp(new Date().getTime())+extension;
+
         List<HashMap<Integer,List<Object>>>data=null;
 
         try {
@@ -56,17 +75,26 @@ public class VanServiceImpl implements VanService{
 
         try {
 
-            data=excelService.read(uploadDir+fileName);
+            data=excelReaderService.read(uploadDir+fileName);
+            ExcelFileDTO excelFileDTO= ExcelFileDTO.builder()
+                    .name(fileName)
+                    .path(uploadDir)
+                    .build();
+            excelFileService.saveExcelFile(excelFileDTO,idDataFixing);
+            documentService.saveDocument(fileName,userId);
 
         } catch (IOException e) {
 
             e.printStackTrace();
+            File file=new File(uploadDir+fileName);
+
+            if(file.exists()){
+
+                file.delete();
+            }
 
             return new ResponseTransfer("error with reading excel file",false);
         }
-
-        Map<Integer,String> indexValues=new HashMap<>();
-
         for(HashMap<Integer,List<Object>> helper:data){
 
             int src=0;
@@ -82,26 +110,26 @@ public class VanServiceImpl implements VanService{
                 if(vanDTO!=null && vanDTO.getCode()!=null && vanDTO.getCode()!=" ") {
 
                     Van van = vanRepository.findVanByCode(vanDTO.getCode());
-                    List<Data>listData=dataRepository.findDataByNumberVan(vanDTO.getCode());
-
-                    for(Data temporalData:listData){
-
-                        if(vanDTO.getDateAct()!=null){
-
-                            temporalData.setAct(true);
-                        }else{
-
-                            temporalData.setAct(false);
-                        }
-                        if(vanDTO.getDateNextRepear()!=null){
-
-                            long diff=vanDTO.getDateNextRepear().getTime()-(new Date()).getTime();
-
-                            temporalData.setDayForRepair(TimeUnit.MILLISECONDS.toDays(diff));
-                        }
-
-                        dataRepository.save(temporalData);
-                    }
+//                    List<Data>listData=dataRepository.findDataByNumberVan(vanDTO.getCode());
+//
+//                    for(Data temporalData:listData){
+//
+//                        if(vanDTO.getDateAct()!=null){
+//
+//                            temporalData.setAct(true);
+//                        }else{
+//
+//                            temporalData.setAct(false);
+//                        }
+//                        if(vanDTO.getDateNextRepear()!=null){
+//
+//                            long diff=vanDTO.getDateNextRepear().getTime()-(new Date()).getTime();
+//
+//                            temporalData.setDayForRepair(TimeUnit.MILLISECONDS.toDays(diff));
+//                        }
+//
+//                        dataRepository.save(temporalData);
+//                    }
                     if (van != null) {
 
                         van.setYearBuilding(vanDTO.getYearBuilding());
@@ -125,6 +153,7 @@ public class VanServiceImpl implements VanService{
                                 .dateAct(vanDTO.getDateAct())
                                 .periodLease(vanDTO.getPeriodLease())
                                 .comment(vanDTO.getComment())
+                                .excelFile(excelFileService.getExcelFileByName(fileName))
                                 .build();
 
                         vanRepository.save(savedVan);
@@ -139,6 +168,27 @@ public class VanServiceImpl implements VanService{
 
     private VanDTO toVanDTO(final List<Object> objects) {
 
+        if(objects == null || objects.isEmpty()){
+
+            return null;
+        }
+        while(!objects.isEmpty()){
+
+            if(valueIsNumericType(objects.get(0).toString())){
+
+                Double value=Double.parseDouble(objects.get(0).toString());
+
+                if(value<1000000.0){
+                    objects.remove(0);
+                }else{
+
+                    break;
+                }
+            }else{
+
+                break;
+            }
+        }
         VanDTO vanDTO=new VanDTO();
         final SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd");
 
@@ -146,31 +196,31 @@ public class VanServiceImpl implements VanService{
 
             switch (i){
 
-                case 1:
+                case 0:
                     if(!valueIsCharacter(objects.get(i).toString())) {
 
                         vanDTO.setCode(objects.get(i).toString());
                     }
                     break;
-                case 2:
+                case 1:
                     if(valueIsNumericType(objects.get(i).toString())){
 
                         vanDTO.setYearBuilding(Double.parseDouble(objects.get(i).toString()));
                     }
                     break;
-                case 3:
+                case 2:
                     if(valueIsNumericType(objects.get(i).toString())){
 
                         vanDTO.setPeriodDuty(Double.parseDouble(objects.get(i).toString()));
                     }
                     break;
-                case 4:
+                case 3:
                     if(valueIsNumericType(objects.get(i).toString())) {
 
                         vanDTO.setEndOfTheDuty(Double.parseDouble(objects.get(i).toString()));
                     }
                     break;
-                case 5:
+                case 4:
                     try {
 
                         vanDTO.setDateRepear(formatter.parse(objects.get(i).toString()));
@@ -181,7 +231,7 @@ public class VanServiceImpl implements VanService{
 
                     }
                     break;
-                case 6:
+                case 5:
                     try {
 
                         vanDTO.setDateNextRepear(formatter.parse(objects.get(i).toString()));
@@ -191,7 +241,7 @@ public class VanServiceImpl implements VanService{
                         e.printStackTrace();
                     }
                     break;
-                case 7:
+                case 6:
                     try {
 
                         vanDTO.setDateAct(formatter.parse(objects.get(i).toString()));
@@ -201,10 +251,10 @@ public class VanServiceImpl implements VanService{
                         e.printStackTrace();
                     }
                     break;
-                case 8:
+                case 7:
                     vanDTO.setPeriodLease(objects.get(i).toString());
                     break;
-                case 9:
+                case 8:
                     vanDTO.setComment(objects.get(i).toString());
                     break;
             }
@@ -236,98 +286,6 @@ public class VanServiceImpl implements VanService{
         }catch (NumberFormatException exception){
 
             return false;
-        }
-    }
-
-    @Override
-    @Transactional
-    public ResponseTransfer addNewVan(final VanDTO vanDTO){
-
-        Van van=vanRepository.findVanByCode(vanDTO.getCode());
-
-        if(van!=null){
-
-            return new ResponseTransfer("code new van's already added",false);
-        }
-        van= Van.builder()
-                .code(vanDTO.getCode())
-                .yearBuilding(vanDTO.getYearBuilding())
-                .periodDuty(vanDTO.getPeriodDuty())
-                .endOfTheDuty(vanDTO.getEndOfTheDuty())
-                .dateRepear(vanDTO.getDateRepear())
-                .dateNextRepear(vanDTO.getDateNextRepear())
-                .dateAct(vanDTO.getDateAct())
-                .periodLease(vanDTO.getPeriodLease())
-                .comment(vanDTO.getComment())
-                .build();
-
-        vanRepository.save(van);
-
-        if(vanRepository.findVanByCode(vanDTO.getCode())!=null){
-
-            return new ResponseTransfer("new van successful added",true);
-        }else{
-
-            return new ResponseTransfer("new van don't added",false);
-        }
-    }
-
-    @Override
-    @Transactional
-    public ResponseTransfer editVanById(final VanDTO vanDTO){
-
-        Van van=vanRepository.findVanById(vanDTO.getId());
-
-        if(van==null){
-
-            return new ResponseTransfer("van don't found with this id",false);
-        }
-        Van check=vanRepository.findVanByCode(vanDTO.getCode());
-
-        if(van.getId()!=check.getId()){
-
-            return new ResponseTransfer("code van's already added other van",false);
-        }
-        van.setCode(vanDTO.getCode());
-        van.setYearBuilding(vanDTO.getYearBuilding());
-        van.setPeriodDuty(vanDTO.getPeriodDuty());
-        van.setEndOfTheDuty(vanDTO.getEndOfTheDuty());
-        van.setDateRepear(vanDTO.getDateRepear());
-        van.setDateNextRepear(vanDTO.getDateNextRepear());
-        van.setDateAct(vanDTO.getDateAct());
-        van.setPeriodLease(vanDTO.getPeriodLease());
-        van.setComment(vanDTO.getComment());
-
-        if(vanRepository.findVanByCodeAndYearBuildingAndPeriodDutyAndEndOfTheDutyAndDateRepearAndDateNextRepearAndDateActAndPeriodLeaseAndComment(
-                vanDTO.getCode(),vanDTO.getYearBuilding(),vanDTO.getPeriodDuty(),vanDTO.getEndOfTheDuty(),vanDTO.getDateRepear(),
-                vanDTO.getDateNextRepear(),vanDTO.getDateAct(),vanDTO.getPeriodLease(),vanDTO.getComment())!=null){
-
-            return new ResponseTransfer("van successful eddited",true);
-        }else{
-
-            return new ResponseTransfer("van don't edited",false);
-        }
-    }
-
-    @Override
-    @Transactional
-    public ResponseTransfer removeVanById(final int id){
-
-        Van van=vanRepository.findVanById(id);
-
-        if(van!=null){
-
-            vanRepository.deleteById(id);
-        }else{
-
-            return new ResponseTransfer("van don't found with this id",false);
-        }
-        if(vanRepository.findVanById(id)!=null){
-
-            return new ResponseTransfer("van don't removed",false);
-        }else{
-
-            return new ResponseTransfer("van successful removed",true);
         }
     }
 

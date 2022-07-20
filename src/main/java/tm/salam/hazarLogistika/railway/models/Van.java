@@ -41,7 +41,9 @@ public class Van {
     private String periodLease;
     @Column(name = "comment")
     private String comment;
-
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "excel_file_id")
+    private ExcelFile excelFile;
     @Override
     public String toString() {
         return "Van{" +

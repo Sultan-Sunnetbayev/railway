@@ -9,6 +9,6 @@ CREATE TABLE "vans"(
     "date_act" TIMESTAMP ,
     "period_lease" CHARACTER VARYING(50) ,
     "comment" TEXT ,
-    CHECK("year_building">0),
+    CHECK("year_building">0) ,
     CHECK("end_of_the_duty">0)
 );

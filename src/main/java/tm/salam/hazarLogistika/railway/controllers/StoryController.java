@@ -31,11 +31,7 @@ public class StoryController {
                                            @RequestParam(value = "finalDate",required = false)
                                                        @DateTimeFormat(pattern = "yyyy-MM-dd") Date finalDate){
 
-        if(finalDate!=null){
-            finalDate.setHours(23);
-            finalDate.setMinutes(59);
-            finalDate.setSeconds(59);
-        }
+
         return documentService.getAllDocumentDTO(userId,initialDate,finalDate);
     }
 

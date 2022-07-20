@@ -40,4 +40,6 @@ public class ExcelFile {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "data_fixing_id")
     private DataFixing dataFixing;
+    @OneToMany(mappedBy = "excelFile", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<Van>vans;
 }

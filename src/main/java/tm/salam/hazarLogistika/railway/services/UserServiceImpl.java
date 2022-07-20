@@ -1,7 +1,7 @@
 package tm.salam.hazarLogistika.railway.services;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +29,7 @@ public class UserServiceImpl implements UserService{
     private PasswordEncoder passwordEncoder;
     private  RoleRepository roleRepository;
     private final String imagePath="src/main/resources/static/imageUsers";
+    private final String defaultImagePath="src/main/resources/static/imageUsers/image.png";
 
     @Autowired
     public void setUserRepository(UserRepository userRepository) {
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public ResponseTransfer addNewLogist(final UserDTO userDTO, final MultipartFile image){
+    public ResponseTransfer addNewLogist(final UserDTO userDTO, MultipartFile image) throws IOException {
 
         if(userRepository.findUserByEmail(userDTO.getEmail())!=null){
 
@@ -71,20 +71,35 @@ public class UserServiceImpl implements UserService{
 
         if(savedUser!=null){
 
-            if(image!=null) {
+            String uuid= UUID.randomUUID().toString();
+            String fileName="";
 
-                String uuid= UUID.randomUUID().toString();
-                String fileName=uuid+"_"+image.getOriginalFilename();
+            if(image!=null && !image.isEmpty()) {
 
+                fileName = uuid + "_" + image.getOriginalFilename();
                 try {
 
-                    FileUploadUtil.saveFile(imagePath,fileName,image);
-                    savedUser.setImagePath(imagePath+"/"+fileName);
+                    FileUploadUtil.saveFile(imagePath, fileName, image);
+                    savedUser.setImagePath(imagePath + "/" + fileName);
+
                 } catch (IOException e) {
 
                     e.printStackTrace();
                 }
+            }else{
 
+                File defaultImage=new File(defaultImagePath);
+                fileName=uuid+"_"+"image.png";
+                Path path=Paths.get(imagePath+"/"+fileName);
+                Files.createFile(path);
+
+                if(defaultImage.exists()){
+
+                    File file=new File(imagePath+"/"+fileName);
+                    FileUtils.copyFile(defaultImage,file);
+                    savedUser.setImagePath(imagePath + "/" + fileName);
+
+                }
             }
 
             return new ResponseTransfer("Logist successful added",true);

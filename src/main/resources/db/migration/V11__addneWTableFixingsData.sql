@@ -5,8 +5,10 @@ CREATE TABLE "data_fixings"(
     "updated" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO "data_fixings"("name") VALUES ('hazar_logistika'),
-                                          ('A logist'),
-                                          ('B logist'),
-                                          ('C logist'),
-                                          ('D logist');
+INSERT INTO "data_fixings"("name") VALUES ('Hazar logistika'),
+                                          ('Dury akar suw'),
+                                          ('Tutumly yol'),
+                                          ('Halkara turkmen logistik'),
+                                          ('Dowamly yol'),
+                                          ('Turkmen gatnaw logistik'),
+                                          ('Logistona');

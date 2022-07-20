@@ -31,4 +31,6 @@ public interface ExcelFileService {
 
     @Transactional
     ResponseTransfer removeExcelFileById(Integer idExcelFile);
+
+    Date getDateFirstAddedExcelFile();
 }
