@@ -92,6 +92,7 @@ public class UserServiceImpl implements UserService{
 
                 if(defaultImage.exists()){
 
+                    System.out.println("yes");
                     fileName=uuid+"_"+"image.png";
                     Path path=Paths.get(imagePath+"/"+fileName);
                     Files.createFile(path);
