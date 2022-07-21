@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 @RestController
-@RequestMapping("/api/v1/src/main/resources")
+@RequestMapping("/api/v1")
 public class FileController {
 
     @Value("${upload.imagePath}")
     private String imagePath;
 
-    @GetMapping(path = "/static/imageUsers/{file}",produces = MediaType.IMAGE_PNG_VALUE)
+    @GetMapping(path = "/imageUsers/{file}",produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> getImage(@PathVariable("file")String fileName) throws IOException {
 
         File image=new File(imagePath+"/"+fileName);
