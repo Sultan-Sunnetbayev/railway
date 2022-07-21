@@ -19,7 +19,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
         registry.addResourceHandler("/src/main/resources/**")
-                .addResourceLocations("classpath:/static/");
+                .addResourceLocations("/imageUsers/");
     }
 
 }

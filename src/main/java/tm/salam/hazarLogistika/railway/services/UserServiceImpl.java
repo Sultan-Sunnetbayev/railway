@@ -28,8 +28,8 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private  RoleRepository roleRepository;
-    private final String imagePath="src/main/resources/static/imageUsers";
-    private final String defaultImagePath="src/main/resources/static/imageUsers/image.png";
+    private final String imagePath="imageUsers";
+    private final String defaultImagePath= "imageUsers/image.png";
 
     @Autowired
     public void setUserRepository(UserRepository userRepository) {
