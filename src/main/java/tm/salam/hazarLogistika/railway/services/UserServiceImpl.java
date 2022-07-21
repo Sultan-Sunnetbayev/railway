@@ -89,14 +89,14 @@ public class UserServiceImpl implements UserService{
             }else{
 
                 File defaultImage=new File(defaultImagePath);
-                fileName=uuid+"_"+"image.png";
-                Path path=Paths.get(imagePath+"/"+fileName);
-                Files.createFile(path);
 
                 if(defaultImage.exists()){
 
-                    File file=new File(imagePath+"/"+fileName);
-                    FileUtils.copyFile(defaultImage,file);
+                    fileName=uuid+"_"+"image.png";
+                    Path path=Paths.get(imagePath+"/"+fileName);
+                    Files.createFile(path);
+                    File imageLogist=new File(imagePath+"/"+fileName);
+                    FileUtils.copyFile(defaultImage,imageLogist);
                     savedUser.setImagePath(imagePath + "/" + fileName);
 
                 }
