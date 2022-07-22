@@ -1,6 +1,7 @@
 package tm.salam.hazarLogistika.railway.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,10 @@ import tm.salam.hazarLogistika.railway.models.User;
 import tm.salam.hazarLogistika.railway.security.jwt.JwtTokenProvider;
 import tm.salam.hazarLogistika.railway.services.UserService;
 
+import javax.activation.FileTypeMap;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +32,9 @@ public class LoginController {
     private UserService userService;
     private JwtTokenProvider jwtTokenProvider;
     private AuthenticationManager authenticationManager;
+
+    @Value("${upload.imagePath}")
+    private String imagePath;
 
     @Autowired
     public void setUserService(UserService userService) {
@@ -83,4 +91,20 @@ public class LoginController {
         return ResponseEntity.ok(userDTO);
 
     }
+
+    @GetMapping(path = "/imageUsers/{file}",produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getImage(@PathVariable("file")String fileName) throws IOException {
+
+        File image=new File(imagePath+"/"+fileName);
+
+        if(image.exists()){
+
+            return ResponseEntity.ok().contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().
+                    getContentType(image))).body(Files.readAllBytes(image.toPath()));
+        }else{
+
+            return null;
+        }
+    }
+
 }

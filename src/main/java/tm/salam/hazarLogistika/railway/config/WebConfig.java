@@ -18,8 +18,8 @@ public class WebConfig extends WebMvcConfigurationSupport {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        registry.addResourceHandler("/src/main/resources/**")
-                .addResourceLocations("/imageUsers/");
+        registry.addResourceHandler("/api/v1/imageUsers/**")
+                .addResourceLocations("imageUsers/");
     }
 
 }

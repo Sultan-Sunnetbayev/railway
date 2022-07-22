@@ -14,7 +14,6 @@ import tm.salam.hazarLogistika.railway.models.ExcelFile;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -55,17 +54,21 @@ public class DataServiceImpl implements DataService{
                                                 final Integer userId) throws InterruptedException {
 
         String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
-        String extension="";
-        for(int i=fileName.length()-1;i>=0;i--){
+        if(excelFileService.getExcelFileByName(fileName)!=null){
 
-            extension=fileName.charAt(i)+extension;
-            if(fileName.charAt(i)=='.'){
-                break;
-            }
+            return new ResponseTransfer("excel file exists with name",false);
         }
-        Thread.sleep(1);
-        fileName=dataFixingService.getNameDataFixingById(idDataFixing)+" "+new Timestamp(new Date().getTime())+extension;
-        final String uploadDir="src/main/resources/excelFiles/data/";
+//        String extension="";
+//        for(int i=fileName.length()-1;i>=0;i--){
+//
+//            extension=fileName.charAt(i)+extension;
+//            if(fileName.charAt(i)=='.'){
+//                break;
+//            }
+//        }
+//        Thread.sleep(1);
+//        fileName=dataFixingService.getNameDataFixingById(idDataFixing)+" "+new Timestamp(new Date().getTime())+extension;
+        final String uploadDir="excelFiles/";
         final ExcelFileDTO excelFileDTO=ExcelFileDTO.builder()
                 .name(fileName)
                 .path(uploadDir)
