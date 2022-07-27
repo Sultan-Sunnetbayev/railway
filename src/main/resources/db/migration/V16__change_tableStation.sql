@@ -1,0 +1,1 @@
+UPDATE "stations" SET "full_name"='Türkmenbaşy-1' WHERE "full_name"='Türkmenbaşy';

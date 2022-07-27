@@ -68,7 +68,7 @@ public class DataServiceImpl implements DataService{
 //        }
 //        Thread.sleep(1);
 //        fileName=dataFixingService.getNameDataFixingById(idDataFixing)+" "+new Timestamp(new Date().getTime())+extension;
-        final String uploadDir="excelFiles/";
+        final String uploadDir="/home/user/data/excelFiles/data/";
         final ExcelFileDTO excelFileDTO=ExcelFileDTO.builder()
                 .name(fileName)
                 .path(uploadDir)

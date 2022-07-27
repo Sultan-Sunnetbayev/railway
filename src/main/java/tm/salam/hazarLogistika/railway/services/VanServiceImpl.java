@@ -45,21 +45,25 @@ public class VanServiceImpl implements VanService{
     @Transactional
     public ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId) throws InterruptedException {
 
-        final String uploadDir="src/main/resources/excelFiles/vans/";
+        final String uploadDir="/home/user/data/excelFiles/vans/";
         String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
         final Integer idDataFixing=1;
-        String extension="";
+//        String extension="";
+//
+//        for(int i=fileName.length()-1;i>=0;i--){
+//
+//            extension=fileName.charAt(i)+extension;
+//            if(fileName.charAt(i)=='.'){
+//                break;
+//            }
+//        }
+//        Thread.sleep(1);
+//        fileName="Акты_Ремонт "+new Timestamp(new Date().getTime())+extension;
 
-        for(int i=fileName.length()-1;i>=0;i--){
+        if(excelFileService.getExcelFileByName(fileName)!=null){
 
-            extension=fileName.charAt(i)+extension;
-            if(fileName.charAt(i)=='.'){
-                break;
-            }
+            return new ResponseTransfer("excel file exists with this name",false);
         }
-        Thread.sleep(1);
-        fileName="Акты_Ремонт "+new Timestamp(new Date().getTime())+extension;
-
         List<HashMap<Integer,List<Object>>>data=null;
 
         try {
