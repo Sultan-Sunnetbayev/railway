@@ -26,4 +26,4 @@ server:
     include-binding-errors: always
 
 upload:
-  imagePath: imageUsers
+  imagePath: /home/user/data/imageUsers
