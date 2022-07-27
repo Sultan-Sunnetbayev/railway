@@ -92,7 +92,7 @@ public class LoginController {
 
     }
 
-    @GetMapping(path = "/imageUsers/{file}",produces = MediaType.IMAGE_PNG_VALUE)
+    @GetMapping(path = "/home/user/data/imageUsers/{file}",produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> getImage(@PathVariable("file")String fileName) throws IOException {
 
         File image=new File(imagePath+"/"+fileName);
