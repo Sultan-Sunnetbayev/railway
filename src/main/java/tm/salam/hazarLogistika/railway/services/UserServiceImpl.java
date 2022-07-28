@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService{
                 try {
 
                     FileUploadUtil.saveFile(imagePath, fileName, image);
-                    savedUser.setImagePath(imagePath + "/" + fileName);
+                    savedUser.setImagePath(imagePath.substring(1) + "/" + fileName);
 
                 } catch (IOException e) {
 
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService{
                     Files.createFile(path);
                     File imageLogist=new File(imagePath+"/"+fileName);
                     FileUtils.copyFile(defaultImage,imageLogist);
-                    savedUser.setImagePath(imagePath + "/" + fileName);
+                    savedUser.setImagePath(imagePath.substring(1) + "/" + fileName);
 
                 }
             }
