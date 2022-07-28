@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService{
                     throw new Exception("delete admin impossible");
                 }
             }
-            imagePath=logist.getImagePath();
+            imagePath="/"+logist.getImagePath();
             userRepository.deleteById(id);
         }
         User check=userRepository.findUserById(id);
