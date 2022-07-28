@@ -68,7 +68,7 @@ public class AdminController {
     @PostMapping(path = "/edit/profile",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
     public ResponseEntity editProfile(final @ModelAttribute UserDTO userDTO,
-                                      final @RequestParam("image") MultipartFile image,
+                                      final @RequestParam(value = "image",required = false) MultipartFile image,
                                       @RequestHeader("Authorization")String token){
 
         Map<Object,Object>response=new HashMap<>();
