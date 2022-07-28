@@ -81,8 +81,6 @@ public class UserServiceImpl implements UserService{
 
                     FileUploadUtil.saveFile(imagePath, fileName, image);
                     savedUser.setImagePath(imagePath.substring(1) + "/" + fileName);
-                    System.out.println(imagePath.substring(1));
-                    System.out.println(savedUser.getImagePath());
 
                 } catch (IOException e) {
 
@@ -94,7 +92,6 @@ public class UserServiceImpl implements UserService{
 
                 if(defaultImage.exists()){
 
-                    System.out.println("yes");
                     fileName=uuid+"_"+"image.png";
                     Path path=Paths.get(imagePath+"/"+fileName);
                     Files.createFile(path);
@@ -243,7 +240,7 @@ public class UserServiceImpl implements UserService{
             try {
 
                 FileUploadUtil.saveFile(imagePath,fileName,image);
-                user.setImagePath(imagePath+"/"+fileName);
+                user.setImagePath(imagePath.substring(1)+"/"+fileName);
 
             } catch (IOException e) {
 
