@@ -50,7 +50,7 @@ public class VanController {
 
     @PostMapping(path = "/load/vans/in/excel/file",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
     public ResponseTransfer loadVansByExcelFile(final @RequestParam("excelFile") MultipartFile excelFile,
-                                                final @RequestParam(value = "userId",required = false)Integer userId) throws InterruptedException {
+                                                final @RequestParam(value = "userId",required = false)Integer userId){
 
         return vanService.loadVanByExcelFile(excelFile,userId);
     }

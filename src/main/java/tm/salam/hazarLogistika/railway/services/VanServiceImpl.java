@@ -43,7 +43,7 @@ public class VanServiceImpl implements VanService{
 
     @Override
     @Transactional
-    public ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId) throws InterruptedException {
+    public ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId){
 
         final String uploadDir="/home/user/data/excelFiles/vans/";
         String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
