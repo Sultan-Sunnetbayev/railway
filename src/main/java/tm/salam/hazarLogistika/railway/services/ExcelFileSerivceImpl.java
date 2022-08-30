@@ -113,16 +113,13 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
     @Override
     public List<Integer>getIdExcelFileDTOSByDataFixingId(Integer idDataFixing){
 
-        List<ExcelFile>excelFiles=excelFileRepository.findExcelFilesByDataFixing_Id(idDataFixing);
+        List<ExcelFile>excelFiles=excelFileRepository.findExcelFilesByDataFixing_IdOrderByCreatedDescLastAddedFiveFiles(idDataFixing);
         List<Integer>idExcelFiles=new ArrayList<>();
-        int src=0;
-        for(int i=excelFiles.size()-1;i>=0 && src<5;i--){
 
-            if(excelFiles.get(i).getName().length()>=11 && !Objects.equals(excelFiles.get(i).getName().substring(0,11),"Акты_Ремонт")) {
-                idExcelFiles.add(excelFiles.get(i).getId());
-            }
-            src++;
+        for(int i=excelFiles.size()-1;i>=0;i--){
+            idExcelFiles.add(excelFiles.get(i).getId());
         }
+
         return idExcelFiles;
     }
 

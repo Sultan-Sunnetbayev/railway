@@ -45,8 +45,9 @@ public class VanServiceImpl implements VanService{
     @Transactional
     public ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId){
 
-        final String uploadDir="/home/user/data/excelFiles/vans/";
-        String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
+        final String uploadDir="/home/sultan/data/excelFiles/vans/";
+        String fileName= "Акты_Ремонт "+new Timestamp(new Date().getTime())+excelFile.getOriginalFilename().substring(
+                excelFile.getOriginalFilename().lastIndexOf(".")).toLowerCase();
         final Integer idDataFixing=1;
 //        String extension="";
 //
@@ -64,7 +65,7 @@ public class VanServiceImpl implements VanService{
 
             return new ResponseTransfer("excel file exists with this name",false);
         }
-        List<HashMap<Integer,List<Object>>>data=null;
+        List<TreeMap<Integer,List<Object>>>data=null;
 
         try {
 
@@ -99,7 +100,7 @@ public class VanServiceImpl implements VanService{
 
             return new ResponseTransfer("error with reading excel file",false);
         }
-        for(HashMap<Integer,List<Object>> helper:data){
+        for(TreeMap<Integer,List<Object>> helper:data){
 
             int src=0;
             for(Integer key:helper.keySet()){

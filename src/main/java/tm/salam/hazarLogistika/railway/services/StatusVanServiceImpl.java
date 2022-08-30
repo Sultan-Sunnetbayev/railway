@@ -1,5 +1,6 @@
 package tm.salam.hazarLogistika.railway.services;
 
+import com.sun.source.tree.Tree;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +37,7 @@ public class StatusVanServiceImpl implements StatusVanService{
 
         final String uploadDir="src/main/resources/excelFiles/statusVan/";
         final String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
-        List<HashMap<Integer,List<Object>>>data=null;
+        List<TreeMap<Integer,List<Object>>>data=null;
 
         try {
 
@@ -60,7 +62,7 @@ public class StatusVanServiceImpl implements StatusVanService{
 
         Map<Integer,String>indexValues=new HashMap<>();
 
-        for(HashMap<Integer,List<Object>> helper:data){
+        for(TreeMap<Integer,List<Object>> helper:data){
 
             for(Integer key:helper.keySet()){
 

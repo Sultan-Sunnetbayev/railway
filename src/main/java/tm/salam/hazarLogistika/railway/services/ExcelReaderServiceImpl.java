@@ -9,23 +9,21 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ExcelReaderServiceImpl implements ExcelReaderService {
 
     @Override
-    public List<HashMap<Integer, List<Object>>> read(String filename) throws IOException {
+    public List<TreeMap<Integer, List<Object>>> read(String filename) throws IOException {
 
         Workbook workbook = loadWorkbook(filename);
         var sheetIterator = workbook.sheetIterator();
-        List<HashMap<Integer,List<Object>>>data = new ArrayList<>();
+        List<TreeMap<Integer,List<Object>>>data = new ArrayList<>();
 
         while (sheetIterator.hasNext()) {
             Sheet sheet = sheetIterator.next();
-            HashMap<Integer, List<Object>> helper=processSheet(sheet);
+            TreeMap<Integer, List<Object>> helper=processSheet(sheet);
             data.add(helper);
 
         }
@@ -54,11 +52,11 @@ public class ExcelReaderServiceImpl implements ExcelReaderService {
         }
     }
 
-    private HashMap<Integer, List<Object>> processSheet(Sheet sheet) {
+    private TreeMap<Integer, List<Object>> processSheet(Sheet sheet) {
 
 //        System.out.println("Sheet: " + sheet.getSheetName());
 
-        var data = new HashMap<Integer, List<Object>>();
+        var data = new TreeMap<Integer, List<Object>>();
         var iterator = sheet.rowIterator();
         for (var rowIndex = 0; iterator.hasNext(); rowIndex++) {
             var row = iterator.next();
@@ -68,7 +66,7 @@ public class ExcelReaderServiceImpl implements ExcelReaderService {
         return data;
     }
 
-    private void processRow(HashMap<Integer, List<Object>> data, int rowIndex, Row row) {
+    private void processRow(TreeMap<Integer, List<Object>> data, int rowIndex, Row row) {
         data.put(rowIndex, new ArrayList<>());
         for (var cell : row) {
             processCell(cell, data.get(rowIndex));

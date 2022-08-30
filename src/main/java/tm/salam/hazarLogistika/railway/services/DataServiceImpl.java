@@ -58,24 +58,11 @@ public class DataServiceImpl implements DataService{
 
             return new ResponseTransfer("excel file exists with name",false);
         }
-//        String extension="";
-//        for(int i=fileName.length()-1;i>=0;i--){
-//
-//            extension=fileName.charAt(i)+extension;
-//            if(fileName.charAt(i)=='.'){
-//                break;
-//            }
-//        }
-//        Thread.sleep(1);
-//        fileName=dataFixingService.getNameDataFixingById(idDataFixing)+" "+new Timestamp(new Date().getTime())+extension;
-        final String uploadDir="/home/user/data/excelFiles/data/";
+        final String uploadDir="/home/sultan/data/excelFiles/data/";
         final ExcelFileDTO excelFileDTO=ExcelFileDTO.builder()
                 .name(fileName)
                 .path(uploadDir)
                 .build();
-
-        List<HashMap<Integer, List<Object>>>data=null;
-
 
         try {
 
@@ -86,6 +73,7 @@ public class DataServiceImpl implements DataService{
 
             return new ResponseTransfer("error with loading excel file",false);
         }
+        List<TreeMap<Integer, List<Object>>>data=null;
 
         try {
 
@@ -107,7 +95,7 @@ public class DataServiceImpl implements DataService{
         }
         ExcelFile savedExcelFile =excelFileService.getExcelFileByName(excelFileDTO.getName());
 
-        for(HashMap<Integer,List<Object>>helper:data){
+        for(TreeMap<Integer,List<Object>>helper:data){
 
             int src=0;
 
@@ -341,7 +329,7 @@ public class DataServiceImpl implements DataService{
     public Map<String,List<OutputDataDTO>> getAllData(Integer idDataFixing, Date initialDate, Date finalDate){
 
         List<Integer>idExcelFiles;
-        Map<String,List<OutputDataDTO>>response=new HashMap<>();
+        Map<String,List<OutputDataDTO>>response=new TreeMap<>();
 
         if(idDataFixing==null){
 

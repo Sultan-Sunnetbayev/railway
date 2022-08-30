@@ -12,10 +12,7 @@ import tm.salam.hazarLogistika.railway.daos.StationRepository;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,7 +33,6 @@ public class StationServiceImpl implements StationService{
 
         final String uploadDir="src/main/resources/excelFiles/stations/";
         final String fileName= StringUtils.cleanPath(excelFile.getOriginalFilename());
-        List<HashMap<Integer,List<Object>>>data=null;
 
         try {
 
@@ -47,6 +43,7 @@ public class StationServiceImpl implements StationService{
 
             return new ResponseTransfer("error with saving excel file",false);
         }
+        List<TreeMap<Integer,List<Object>>>data=null;
 
         try {
 
@@ -61,7 +58,7 @@ public class StationServiceImpl implements StationService{
         Map<Integer,String>indexValues=new HashMap<>();
 
 //        stationRepository.deleteAll();
-        for(HashMap<Integer,List<Object>> helper:data){
+        for(TreeMap<Integer,List<Object>> helper:data){
 
             for(Integer key:helper.keySet()) {
 

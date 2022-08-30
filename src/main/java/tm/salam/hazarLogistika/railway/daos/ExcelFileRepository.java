@@ -20,5 +20,8 @@ public interface ExcelFileRepository extends JpaRepository<ExcelFile,Integer> {
     @Query("SELECT MIN(exl.created) FROM ExcelFile exl WHERE exl.dataFixing.id = :idDataFixing")
     Date getDateFirstAddedExcelFiles(Integer idDataFixing);
 
+    @Query(value = "SELECT * FROM excel_files WHERE (excel_files.data_fixing_id = :idDataFixing) AND " +
+            "NOT (LOWER(excel_files.name) LIKE '%акты_ремонт%') ORDER BY excel_files.created DESC LIMIT 5", nativeQuery = true)
+    List<ExcelFile>findExcelFilesByDataFixing_IdOrderByCreatedDescLastAddedFiveFiles(@Param("idDataFixing") Integer idDataFixing);
 
 }
