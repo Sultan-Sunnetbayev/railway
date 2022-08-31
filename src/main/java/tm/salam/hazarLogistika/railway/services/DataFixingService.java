@@ -3,6 +3,7 @@ package tm.salam.hazarLogistika.railway.services;
 import tm.salam.hazarLogistika.railway.dtos.DataFixingDTO;
 import tm.salam.hazarLogistika.railway.models.DataFixing;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 public interface DataFixingService {
@@ -14,4 +15,9 @@ public interface DataFixingService {
     String getNameDataFixingById(final Integer idDataFixing);
 
     DataFixing getDataFixingById(final Integer idDataFixing);
+
+    @Transactional
+    void addDataFixing(DataFixing dataFixing);
+
+    boolean isDataFixingExists(DataFixing dataFixing);
 }

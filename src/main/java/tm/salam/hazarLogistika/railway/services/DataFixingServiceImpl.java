@@ -6,6 +6,7 @@ import tm.salam.hazarLogistika.railway.daos.DataFixingRepository;
 import tm.salam.hazarLogistika.railway.dtos.DataFixingDTO;
 import tm.salam.hazarLogistika.railway.models.DataFixing;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,6 +75,34 @@ public class DataFixingServiceImpl implements DataFixingService{
         }else{
 
             return dataFixing;
+        }
+    }
+
+    @Override
+    @Transactional
+    public void addDataFixing(final DataFixing dataFixing){
+
+        if(dataFixingRepository.findDataFixingByName(dataFixing.getName())!=null){
+
+            return;
+        }
+        DataFixing savedDataFixing=DataFixing.builder()
+                .name(dataFixing.getName())
+                .build();
+        dataFixingRepository.save(savedDataFixing);
+
+        return;
+    }
+
+    @Override
+    public boolean isDataFixingExists(final DataFixing dataFixing){
+
+        if(dataFixingRepository.findDataFixingByName(dataFixing.getName())!=null){
+
+            return true;
+        }else{
+
+            return false;
         }
     }
 
