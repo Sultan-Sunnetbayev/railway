@@ -191,7 +191,7 @@ public class ExcelFileSerivceImpl implements ExcelFileService{
 
             file.delete();
         }
-        excelFileRepository.deleteById(idExcelFile);
+        excelFileRepository.removeExcelFileById(idExcelFile);
         if(excelFileRepository.findExcelFileById(idExcelFile)==null){
 
             return new ResponseTransfer("excel file successful removed",true);
