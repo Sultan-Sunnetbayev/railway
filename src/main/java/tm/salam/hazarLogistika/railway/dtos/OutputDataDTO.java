@@ -27,6 +27,7 @@ public class OutputDataDTO {
     private Boolean act;
     private Long hourForPassedWay;
     private Long dayForRepair;
+    private String indexVan;
 
     @Override
     public String toString() {

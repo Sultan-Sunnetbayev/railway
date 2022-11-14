@@ -43,12 +43,11 @@ public class VanServiceImpl implements VanService{
 
     @Override
     @Transactional
-    public ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId){
+    public ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId, final Integer dataFixingId){
 
         final String uploadDir="/home/sultan/data/excelFiles/vans/";
         String fileName= "Акты_Ремонт "+new Timestamp(new Date().getTime())+excelFile.getOriginalFilename().substring(
                 excelFile.getOriginalFilename().lastIndexOf(".")).toLowerCase();
-        final Integer idDataFixing=1;
 //        String extension="";
 //
 //        for(int i=fileName.length()-1;i>=0;i--){
@@ -85,7 +84,7 @@ public class VanServiceImpl implements VanService{
                     .name(fileName)
                     .path(uploadDir)
                     .build();
-            excelFileService.saveExcelFile(excelFileDTO,idDataFixing);
+            excelFileService.saveExcelFile(excelFileDTO,dataFixingId);
             documentService.saveDocument(fileName,userId);
 
         } catch (IOException e) {

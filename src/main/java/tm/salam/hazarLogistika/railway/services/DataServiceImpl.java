@@ -373,6 +373,7 @@ public class DataServiceImpl implements DataService{
                                 .act(helper.getAct())
                                 .hourForPassedWay(helper.getHourForPassedWay())
                                 .dayForRepair(helper.getDayForRepair())
+                                .indexVan(helper.getIndexTrain())
                                 .build()
                 );
             }

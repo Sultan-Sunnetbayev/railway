@@ -26,9 +26,10 @@ public class VanController {
 
     @PostMapping(path = "/load/vans/in/excel/file",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/json")
     public ResponseTransfer loadVansByExcelFile(final @RequestParam("excelFile") MultipartFile excelFile,
-                                                final @RequestParam(value = "userId")Integer userId){
+                                                final @RequestParam(value = "userId")Integer userId,
+                                                final @RequestParam(value = "dataFixingId")Integer dataFixingId){
 
-        return vanService.loadVanByExcelFile(excelFile,userId);
+        return vanService.loadVanByExcelFile(excelFile,userId,dataFixingId);
     }
 
 }

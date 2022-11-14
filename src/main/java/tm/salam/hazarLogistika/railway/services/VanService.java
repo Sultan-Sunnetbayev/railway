@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface VanService {
     @Transactional
-    ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId);
+    ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId, final Integer dataFixingId);
 
     List<VanDTO> getAllVanDTOS();
 
