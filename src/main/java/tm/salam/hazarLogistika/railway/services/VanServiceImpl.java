@@ -45,7 +45,7 @@ public class VanServiceImpl implements VanService{
     @Transactional
     public ResponseTransfer loadVanByExcelFile(final MultipartFile excelFile, final Integer userId, final Integer dataFixingId){
 
-        final String uploadDir="/home/sultan/data/excelFiles/vans/";
+        final String uploadDir="/home/user/data/excelFiles/vans/";
         String fileName= "Акты_Ремонт "+new Timestamp(new Date().getTime())+excelFile.getOriginalFilename().substring(
                 excelFile.getOriginalFilename().lastIndexOf(".")).toLowerCase();
 //        String extension="";

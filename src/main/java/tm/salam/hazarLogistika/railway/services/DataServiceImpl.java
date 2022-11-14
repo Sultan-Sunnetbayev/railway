@@ -58,7 +58,7 @@ public class DataServiceImpl implements DataService{
 
             return new ResponseTransfer("excel file exists with name",false);
         }
-        final String uploadDir="/home/sultan/data/excelFiles/data/";
+        final String uploadDir="/home/user/data/excelFiles/data/";
         final ExcelFileDTO excelFileDTO=ExcelFileDTO.builder()
                 .name(fileName)
                 .path(uploadDir)
