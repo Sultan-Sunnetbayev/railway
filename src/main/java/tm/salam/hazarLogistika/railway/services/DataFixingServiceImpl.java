@@ -106,4 +106,38 @@ public class DataFixingServiceImpl implements DataFixingService{
         }
     }
 
+    @Override
+    public boolean isDataFixingExistsById(final int dataFixingId){
+
+        return dataFixingRepository.isDataFixingExistsById(dataFixingId);
+    }
+
+    @Override
+    @Transactional
+    public boolean editDataFixingById(final DataFixing dataFixing){
+
+        DataFixing editedDataFixing=dataFixingRepository.findDataFixingById(dataFixing.getId());
+
+        if(editedDataFixing==null){
+
+            return false;
+        }
+        editedDataFixing.setName(dataFixing.getName());
+        dataFixingRepository.save(editedDataFixing);
+
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public void removeDataFixingById(final int dataFixingId){
+
+        if(dataFixingRepository.findDataFixingById(dataFixingId)!=null){
+
+            dataFixingRepository.removeDataFixingById(dataFixingId);
+        }
+
+        return;
+    }
+
 }

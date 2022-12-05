@@ -20,4 +20,12 @@ public interface DataFixingService {
     void addDataFixing(DataFixing dataFixing);
 
     boolean isDataFixingExists(DataFixing dataFixing);
+
+    boolean isDataFixingExistsById(int dataFixingId);
+
+    @Transactional
+    boolean editDataFixingById(DataFixing dataFixing);
+
+    @Transactional
+    void removeDataFixingById(int dataFixingId);
 }
