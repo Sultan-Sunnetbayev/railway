@@ -7,6 +7,7 @@ import tm.salam.hazarLogistika.railway.dtos.DataFixingDTO;
 import tm.salam.hazarLogistika.railway.models.DataFixing;
 
 import javax.transaction.Transactional;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,9 +24,17 @@ public class DataFixingServiceImpl implements DataFixingService{
     @Override
     public List<DataFixingDTO>getAllDataFixingDTO(){
 
-        return dataFixingRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        List<DataFixing>dataFixings=dataFixingRepository.getAllDataFixings();
+        List<DataFixingDTO>dataFixingDTOS=new LinkedList<>();
+
+        if(dataFixings==null){
+            dataFixings=new LinkedList<>();
+        }
+        for (DataFixing dataFixing : dataFixings) {
+            dataFixingDTOS.add(toDTO(dataFixing));
+        }
+
+        return dataFixingDTOS;
     }
 
     private DataFixingDTO toDTO(DataFixing dataFixing) {

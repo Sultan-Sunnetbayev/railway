@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import tm.salam.hazarLogistika.railway.models.DataFixing;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Repository
 public interface DataFixingRepository extends JpaRepository<DataFixing,Integer> {
@@ -23,5 +24,8 @@ public interface DataFixingRepository extends JpaRepository<DataFixing,Integer> 
     @Modifying
     @Transactional
     void removeDataFixingById(@Param("dataFixingId")int dataFixingId);
+
+    @Query("SELECT dataFixing FROM DataFixing dataFixing ORDER BY dataFixing.created")
+    List<DataFixing> getAllDataFixings();
 
 }
