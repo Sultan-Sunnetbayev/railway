@@ -25,7 +25,7 @@ public interface DataFixingRepository extends JpaRepository<DataFixing,Integer> 
     @Transactional
     void removeDataFixingById(@Param("dataFixingId")int dataFixingId);
 
-    @Query("SELECT dataFixing FROM DataFixing dataFixing ORDER BY dataFixing.created")
+    @Query("SELECT dataFixing FROM DataFixing dataFixing ORDER BY dataFixing.id")
     List<DataFixing> getAllDataFixings();
 
 }
