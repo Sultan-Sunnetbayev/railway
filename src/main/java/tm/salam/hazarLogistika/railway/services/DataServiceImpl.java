@@ -136,12 +136,19 @@ public class DataServiceImpl implements DataService{
                         dataDTO.setLastStation(dataDTO.getCurrentStation());
                         dataDTO.setHourForPassedWay(0L);
                     }else{
+                        if(temporal.getCurrentStation()==null){
+                            dataDTO.setLastStation(dataDTO.getCurrentStation());
+                        }else {
+                            dataDTO.setLastStation(temporal.getCurrentStation());
+                        }
+                        if(temporal.getYearDateTime()==null){
+                            dataDTO.setHourForPassedWay(0L);
+                        }else {
+                            if (dataDTO.getYearDateTime() != null) {
 
-                        dataDTO.setLastStation(temporal.getCurrentStation());
-                        if(dataDTO.getYearDateTime()!=null){
-
-                            long diff=dataDTO.getYearDateTime().getTime()-temporal.getYearDateTime().getTime();
-                            dataDTO.setHourForPassedWay(TimeUnit.MILLISECONDS.toHours(diff));
+                                long diff = dataDTO.getYearDateTime().getTime() - temporal.getYearDateTime().getTime();
+                                dataDTO.setHourForPassedWay(TimeUnit.MILLISECONDS.toHours(diff));
+                            }
                         }
                     }
                     VanDTO vanDTO=vanService.getVanDTOByCode(dataDTO.getNumberVan());
