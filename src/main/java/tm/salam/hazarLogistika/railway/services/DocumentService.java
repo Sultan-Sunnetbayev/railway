@@ -19,4 +19,6 @@ public interface DocumentService {
 
     @Transactional
     void changeStatusById(Integer id);
+
+    String getDocumentNameByDocumentId(int documentId);
 }

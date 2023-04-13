@@ -118,13 +118,33 @@ public class DataController {
     }
 
     @PostMapping(path = "/remove/excel/file/by/id",produces = "application/json")
-    public ResponseTransfer removeExcelFileById(final @RequestParam("idExcelFile")Integer idExcelFile){
+    public ResponseTransfer removeExcelFileById(final @RequestParam("idExcelFile")Integer documentId){
 
-        ResponseTransfer responseTransfer=excelFileService.removeExcelFileById(idExcelFile);
+        ResponseTransfer responseTransfer=null;
+        String documentName=documentService.getDocumentNameByDocumentId(documentId);
+
+        if(documentName==null){
+            responseTransfer=ResponseTransfer.builder()
+                    .message("error document not found with this id")
+                    .status(false)
+                    .build();
+
+            return responseTransfer;
+        }
+        ExcelFileDTO excelFileDTO=excelFileService.getExcelFileDTOByName(documentName);
+        if(excelFileDTO==null){
+            responseTransfer=ResponseTransfer.builder()
+                    .message("error excel file not found")
+                    .status(false)
+                    .build();
+            documentService.changeStatusById(documentId);
+
+            return responseTransfer;
+        }
+        responseTransfer=excelFileService.removeExcelFileById(excelFileDTO.getId());
 
         if(responseTransfer.getStatus().booleanValue()){
-
-            documentService.changeStatusById(idExcelFile);
+            documentService.changeStatusById(documentId);
         }
 
         return responseTransfer;
