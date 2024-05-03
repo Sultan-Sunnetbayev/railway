@@ -134,4 +134,10 @@ public class DocumentServiceImpl implements DocumentService{
         }
     }
 
+    @Override
+    public String getDocumentNameByDocumentId(final int documentId){
+
+        return documentRepository.getDocumentNameByDocumentId(documentId);
+    }
+
 }
