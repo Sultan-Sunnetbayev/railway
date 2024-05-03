@@ -374,6 +374,9 @@ public class DataServiceImpl implements DataService{
                                 .hourForPassedWay(helper.getHourForPassedWay())
                                 .dayForRepair(helper.getDayForRepair())
                                 .indexVan(helper.getIndexTrain())
+                                .type(helper.getType())
+                                .color(helper.getColor())
+                                .description(helper.getDescription())
                                 .build()
                 );
             }
@@ -441,6 +444,13 @@ public class DataServiceImpl implements DataService{
 
             return null;
         }
+    }
+
+    @Override
+    @Transactional
+    public void updateDataTypeColorDescriptionState(final Data data){
+
+        dataRepository.updateDataTypeColorDescriptionState(data.getId(), data.getType(), data.getColor(), data.getDescription());
     }
 
 }

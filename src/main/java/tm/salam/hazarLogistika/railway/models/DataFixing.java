@@ -28,6 +28,8 @@ public class DataFixing {
     @NotEmpty(message = "name data fixing's is empty")
     @NotBlank(message = "name data fixing's is mandatory")
     private String name;
+    @Column(name = "is_active")
+    private boolean isActive;
     @Column(name = "created")
     @CreationTimestamp
     private Date created;

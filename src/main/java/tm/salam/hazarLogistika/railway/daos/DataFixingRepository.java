@@ -28,4 +28,7 @@ public interface DataFixingRepository extends JpaRepository<DataFixing,Integer> 
     @Query("SELECT dataFixing FROM DataFixing dataFixing ORDER BY dataFixing.id")
     List<DataFixing> getAllDataFixings();
 
+    @Query("SELECT dataFixing FROM DataFixing dataFixing WHERE dataFixing.isActive=TRUE ORDER BY dataFixing.id")
+    List<DataFixing> getAllActiveDataFixings();
+
 }

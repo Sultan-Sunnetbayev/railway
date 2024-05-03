@@ -2,6 +2,7 @@ package tm.salam.hazarLogistika.railway.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import tm.salam.hazarLogistika.railway.dtos.ExcelFileDTO;
 import tm.salam.hazarLogistika.railway.dtos.OutputDataDTO;
 import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
+import tm.salam.hazarLogistika.railway.models.Data;
 import tm.salam.hazarLogistika.railway.services.*;
 
 import java.io.File;
@@ -129,4 +131,17 @@ public class DataController {
 
         return responseTransfer;
     }
+
+    @PostMapping(path = "/update-option-data", produces = "application/json")
+    public ResponseEntity<?>updateOptionData(@RequestBody Data data){
+
+        dataService.updateDataTypeColorDescriptionState(data);
+        Map<String, Object>response=new LinkedHashMap<>();
+
+        response.put("status", true);
+        response.put("message", "accept option data successful updated");
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+    }
+
 }

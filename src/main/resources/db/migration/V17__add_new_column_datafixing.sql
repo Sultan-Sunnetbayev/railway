@@ -1,0 +1,2 @@
+ALTER TABLE "data_fixings"
+    ADD COLUMN "is_active" BOOLEAN NOT NULL DEFAULT TRUE;

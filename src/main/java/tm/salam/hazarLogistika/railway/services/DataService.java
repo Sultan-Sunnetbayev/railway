@@ -3,6 +3,7 @@ package tm.salam.hazarLogistika.railway.services;
 import org.springframework.web.multipart.MultipartFile;
 import tm.salam.hazarLogistika.railway.dtos.OutputDataDTO;
 import tm.salam.hazarLogistika.railway.helper.ResponseTransfer;
+import tm.salam.hazarLogistika.railway.models.Data;
 
 import javax.transaction.Transactional;
 import java.io.File;
@@ -23,4 +24,7 @@ public interface DataService {
     List<String>getSetStationsFromData(Integer idDataFixing, List<Integer>idExcelFiles);
 
     File getExcelFileById(int id);
+
+    @Transactional
+    void updateDataTypeColorDescriptionState(Data data);
 }

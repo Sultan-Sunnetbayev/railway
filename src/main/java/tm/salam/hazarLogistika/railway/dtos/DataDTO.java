@@ -35,6 +35,9 @@ public class DataDTO {
     private Long dayForRepair;
     private String indexTrain;
     private Boolean act;
+    private String type;
+    private String color;
+    private String description;
 
     @Override
     public String toString() {

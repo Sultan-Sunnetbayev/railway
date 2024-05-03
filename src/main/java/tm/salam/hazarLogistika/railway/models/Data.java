@@ -53,6 +53,12 @@ public class Data {
     private String indexTrain;
     @Column(name = "act")
     private Boolean act;
+    @Column(name = "color")
+    private String color;
+    @Column(name = "type")
+    private String type;
+    @Column(name = "description")
+    private String description;
     @Column(name = "created")
     @CreationTimestamp
     private Date created;

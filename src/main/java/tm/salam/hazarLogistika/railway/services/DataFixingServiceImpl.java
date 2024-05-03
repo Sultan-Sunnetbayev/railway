@@ -24,7 +24,7 @@ public class DataFixingServiceImpl implements DataFixingService{
     @Override
     public List<DataFixingDTO>getAllDataFixingDTO(){
 
-        List<DataFixing>dataFixings=dataFixingRepository.getAllDataFixings();
+        List<DataFixing>dataFixings=dataFixingRepository.getAllActiveDataFixings();
         List<DataFixingDTO>dataFixingDTOS=new LinkedList<>();
 
         if(dataFixings==null){
